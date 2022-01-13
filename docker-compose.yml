@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+    db_server:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: postgres
+            POSTGRES_DB: school
+    php_server:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: php_server:latest
+        ports:
+            - "8080:80"
+        volumes:
+            - ./www/:/var/www/html/
