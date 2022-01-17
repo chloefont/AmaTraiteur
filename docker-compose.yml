@@ -4,14 +4,18 @@ services:
     db_server:
         image: postgres
         restart: always
+        ports:
+            - "5432:5432"
         environment:
-            POSTGRES_PASSWORD: password
+            POSTGRES_PASSWORD: pro
             POSTGRES_USER: postgres
-            POSTGRES_DB: school
+            POSTGRES_DB: amaTraiteur
+        volumes:
+          - ./db/:/docker-entrypoint-initdb.d
     php_server:
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile_php
         image: php_server:latest
         ports:
             - "8080:80"

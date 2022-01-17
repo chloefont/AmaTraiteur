@@ -1,3 +1,5 @@
+CREATE DATABASE zizi;
+
 ----------------------- Enum
 DROP TYPE IF EXISTS Plat_catégorie CASCADE;
 CREATE TYPE Plat_catégorie AS ENUM ('Entrée', 'Plat', 'Dessert');
@@ -64,7 +66,7 @@ DROP TABLE IF EXISTS Plat CASCADE;
 CREATE TABLE Plat (
     idProduit INTEGER,
     description VARCHAR(200),
-    catégorie Plat_categorie NOT NULL,
+    catégorie Plat_catégorie NOT NULL,
     idStyleCulinaire INTEGER,
     CONSTRAINT PK_Plat PRIMARY KEY (idProduit)
 );
