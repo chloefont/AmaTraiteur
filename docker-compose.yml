@@ -21,3 +21,6 @@ services:
             - "8080:80"
         volumes:
             - ./www/:/var/www/html/
+        environment:
+            - DB_USER=postgres
+            - DB_PASSWORD=pro
