@@ -10,7 +10,7 @@ echo "<pre>".print_r($users)."</pre><br />";
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Landing Page - Start Bootstrap Theme</title>
+        <title>AmaTraiteur - Home</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Bootstrap icons-->
@@ -19,6 +19,7 @@ echo "<pre>".print_r($users)."</pre><br />";
         <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/my_styles.css" rel="stylesheet" />
     </head>
     <body>
         <!-- Navigation-->
@@ -77,7 +78,7 @@ echo "<pre>".print_r($users)."</pre><br />";
             </div>
         </header>
         <!-- Icons Grid-->
-        <section class="features-icons bg-light text-center">
+        <!-- <section class="features-icons bg-light text-center">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4">
@@ -103,15 +104,35 @@ echo "<pre>".print_r($users)."</pre><br />";
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- Image Showcases-->
-        <section class="showcase">
+        <section class="showcase traiteur-list">
             <div class="container-fluid p-0">
                 <div class="row g-0">
-                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('assets/img/bg-showcase-1.jpg')"></div>
-                    <div class="col-lg-6 order-lg-1 my-auto showcase-text">
-                        <h2>Fully Responsive Design</h2>
-                        <p class="lead mb-0">When you use a theme created by Start Bootstrap, you know that the theme will look great on any device, whether it's a phone, tablet, or desktop the page will behave responsively!</p>
+                    <div class="card traiteur-card" style="width: 50rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Traiteur 1</h5>
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-0">
+                    <div class="card traiteur-card" style="width: 50rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Traiteur 2</h5>
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-0">
+                    <div class="card traiteur-card" style="width: 50rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Traiteur 3</h5>
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
                     </div>
                 </div>
                 <div class="row g-0">

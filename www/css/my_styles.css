@@ -1,0 +1,9 @@
+.traiteur-list {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+.traiteur-card {
+    /* width: 200px; */
+}
