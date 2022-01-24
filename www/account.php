@@ -1,8 +1,9 @@
 <?php
 require_once("db_connect.php");
-$idTraitor = $_GET["idTraitor"];
 $id = $_GET["id"];
 $id = 3;
+$persoInfos = getPersoInfos($id);
+echo "<pre>".print_r($persoInfos)."</pre><br />";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,7 +12,7 @@ $id = 3;
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>AmaTraiteur - Home</title>
+        <title>AmaTraiteur - Account</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Bootstrap icons-->
@@ -37,11 +38,12 @@ $id = 3;
                     <div class="col-xl-6">
                         <div class="text-center text-white">
                             <!-- Page heading-->
-                            <h1 class="mb-5">Jean Didier le traiteur</h1>
-                            <h2 class="mb-5">note/5</h2>
-                            <h4 class="mb-5">Adresse, numéro téléphone</h4>
-                            <h4 class="mb-5">Adresse mail</h4>
-                            <<?= "a href='evaluations.php?idTraitor=".$idTraitor."&id=".$id."' class='btn btn-primary'>Evaluation</a>" ?>
+                            <?php foreach($persoInfos as $row): ?>
+                            <h1 class="mb-5">Compte personnel</h1>
+                            <h2 class="mb-5"><?= $row['prénom']." ".$row['nom'] ?></h2>
+                            <h4 class="mb-5"><?= $row['adresse'].", ".$row['notelephone'] ?></h4>
+                            <h4 class="mb-5"><?= $row['email'] ?></h4>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -53,42 +55,21 @@ $id = 3;
                 <div class="col">
                     <section class="showcase traiteur-list">
                         <div class="container-fluid p-0">
-                            <h3 class="center-text">Entrées</h3>
+                            <h3 class="center-text">Historique des commandes</h3>
 
                             <div class="row g-0">
                                 <div class="card traiteur-card" style="width: 80%;">
                                     <div class="card-body">
                                         <h5 class="card-title">Entrée</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Commander</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <h3 class="center-text">Plats</h3>
-
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 2</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <h3 class="center-text">Desserts</h3>
-
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 3</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </section>
                 </div>
+
+
                 <div class="col">
                 <section class="showcase traiteur-list">
                         <div class="container-fluid p-0">

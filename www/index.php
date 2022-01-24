@@ -1,8 +1,8 @@
-<!-- <?php
+<?php
 require_once("db_connect.php");
-echo "<pre>".print_r($users)."</pre><br />";
+$id = 3;
 
-?> -->
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -25,8 +25,8 @@ echo "<pre>".print_r($users)."</pre><br />";
         <!-- Navigation-->
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href="#!">AmaTraiteur</a>
-                <a class="btn btn-primary" href="#signup">Mon compte</a>
+                <a class="navbar-brand" href=<?="index.php?id=".$id?>>AmaTraiteur</a>
+                <a class="btn btn-primary" href=<?="account.php?id=".$id?>>Mon compte</a>
             </div>
         </nav>
         <!-- Masthead-->
@@ -37,14 +37,6 @@ echo "<pre>".print_r($users)."</pre><br />";
                         <div class="text-center text-white">
                             <!-- Page heading-->
                             <h1 class="mb-5">Recherchez un traiteur</h1>
-                            <!-- Signup form-->
-                            <!-- * * * * * * * * * * * * * * *-->
-                            <!-- * * SB Forms Contact Form * *-->
-                            <!-- * * * * * * * * * * * * * * *-->
-                            <!-- This form is pre-integrated with SB Forms.-->
-                            <!-- To make this form functional, sign up at-->
-                            <!-- https://startbootstrap.com/solution/contact-forms-->
-                            <!-- to get an API token!-->
                             <form class="form-subscribe" id="contactForm" data-sb-form-api-token="API_TOKEN">
                                 <!-- Email address input-->
                                 <div class="row">
@@ -55,10 +47,6 @@ echo "<pre>".print_r($users)."</pre><br />";
                                     </div>
                                     <div class="col-auto"><button class="btn btn-primary btn-lg disabled" id="submitButton" type="submit">Rechercher</button></div>
                                 </div>
-                                <!-- Submit success message-->
-                                <!---->
-                                <!-- This is what your users will see when the form-->
-                                <!-- has successfully submitted-->
                                 <div class="d-none" id="submitSuccessMessage">
                                     <div class="text-center mb-3">
                                         <div class="fw-bolder">Form submission successful!</div>
@@ -81,33 +69,17 @@ echo "<pre>".print_r($users)."</pre><br />";
 
         <section class="showcase traiteur-list">
             <div class="container-fluid p-0">
+                <?php foreach($users as $row): ?>
                 <div class="row g-0">
                     <div class="card traiteur-card" style="width: 60rem;">
                         <div class="card-body">
-                            <h5 class="card-title">Traiteur 1</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            <?= "<a href='traiteur.php?id=10' class='btn btn-primary'>New Page</a>";?>
+                            <h5 class="card-title"><?= $row['prénom']." ".$row['nom'] ?></h5>
+                            <p class="card-text"><?= $row['adresse'].", ".$row['notelephone'].", note : ".$row['notelephone']."/5" ?></p>
+                            <?= "<a href='traiteur.php?idTraitor=".$row['id']."&id=1' class='btn btn-primary'>Voir la page</a>";?>
                         </div>
                     </div>
                 </div>
-                <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">Traiteur 2</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60rem;">
-                        <div class="card-body">
-                            <h5 class="card-title">Traiteur 3</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </section>
     

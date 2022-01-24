@@ -1,6 +1,7 @@
 <!-- <?php
 require_once("db_connect.php");
-echo "<pre>".print_r($users)."</pre><br />";
+$idTraitor = $_GET["idTraitor"];
+$id = $_GET["id"];
 
 ?> -->
 <!DOCTYPE html>
@@ -25,8 +26,8 @@ echo "<pre>".print_r($users)."</pre><br />";
         <!-- Navigation-->
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href="#!">AmaTraiteur</a>
-                <a class="btn btn-primary" href="#signup">Mon compte</a>
+                <a class="navbar-brand" href=<?="index.php?id=".$id?>>AmaTraiteur</a>
+                <a class="btn btn-primary" href=<?="account.php?id=".$id?>>Mon compte</a>
             </div>
         </nav>
         <!-- Masthead-->
@@ -46,7 +47,6 @@ echo "<pre>".print_r($users)."</pre><br />";
                 </div>
             </div>
         </header>
-
 
         <section class="showcase traiteur-list">
             <div class="container-fluid p-0">
