@@ -1,122 +1,270 @@
--- moyenne de note des traiteurs
-SELECT round(AVG(note), 2) AS moyenne
-FROM Evaluation
-    INNER JOIN Commande
-        ON Evaluation.nocommande = Commande.nocommande
-    INNER JOIN Produit_Commande
-        ON Commande.nocommande = Produit_Commande.nocommande
-    INNER JOIN produit
-        ON produit_commande.idproduit = produit.id
-WHERE produit.idtraiteur = 1;
+----------------------- Enum
+DROP TYPE IF EXISTS Plat_catégorie CASCADE;
+CREATE TYPE Plat_catégorie AS ENUM ('Entrée', 'Plat', 'Dessert');
 
--- sélection des 10 meilleurs traiteurs
-SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, round(AVG(note), 2) AS moyenne
-FROM traiteur
-    INNER JOIN personne
-        ON traiteur.idpersonne = personne.id
-    INNER JOIN cours
-        ON traiteur.idcours = cours.id
-    INNER JOIN produit
-        ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
-        ON produit.id = produit_commande.idproduit
-    INNER JOIN commande
-        ON produit_commande.nocommande = commande.nocommande
-    INNER JOIN evaluation
-        ON commande.nocommande = evaluation.nocommande
-WHERE traiteur.idpersonne = 1 AND traiteur
-GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse
-ORDER BY moyenne DESC
-LIMIT 10;
+DROP TYPE IF EXISTS Commande_statut CASCADE;
+CREATE TYPE Commande_statut AS ENUM ('Non validé', 'validé', 'En cours de livraison', 'livré');
 
--- moteur de recherche
-SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, round(AVG(note), 2) AS moyenne
-FROM traiteur
-    INNER JOIN personne
-        ON traiteur.idpersonne = personne.id
-    INNER JOIN cours
-        ON traiteur.idcours = cours.id
-    INNER JOIN produit
-        ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
-        ON produit.id = produit_commande.idproduit
-    INNER JOIN plat
-        ON produit.id = plat.idproduit
-    LEFT JOIN styleculinaire
-        ON plat.idstyleculinaire = styleculinaire.id
-    INNER JOIN commande
-        ON produit_commande.nocommande = commande.nocommande
-    INNER JOIN evaluation
-        ON commande.nocommande = evaluation.nocommande
-WHERE traiteur.statut = true AND (personne.nom ILIKE 'mot' OR personne.prénom ILIKE 'mot'
-                                      OR personne.adresse ILIKE 'mot' OR produit.libellé ILIKE 'mot'
-                                      OR styleculinaire.nom ILIKE 'mot')
-GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse
-ORDER BY moyenne DESC;
+DROP TYPE IF EXISTS Commande_moyenPaiement CASCADE;
+CREATE TYPE Commande_moyenPaiement AS ENUM ('carte bancaire', 'twint', 'espèce', 'paypal');
 
--- sélection des évaluations d'un traiteur
-SELECT evaluation.note, evaluation.dateevaluation, evaluation.dateevaluation
-FROM traiteur
-    INNER JOIN produit
-        ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
-        ON produit.id = produit_commande.idproduit
-    INNER JOIN commande
-        ON produit_commande.nocommande = commande.nocommande
-    INNER JOIN evaluation
-        ON commande.nocommande = evaluation.nocommande
-WHERE traiteur.idpersonne = 1
-ORDER BY evaluation.dateevaluation DESC;
+----------------------- Création tables
+DROP TABLE IF EXISTS Personne CASCADE;
+CREATE TABLE Personne (
+    id SERIAL,
+    nom VARCHAR(25) NOT NULL,
+    prénom VARCHAR(25) NOT NULL,
+    adresse VARCHAR(50) NOT NULL,
+    noTelephone VARCHAR(15) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    CONSTRAINT PK_Personne PRIMARY KEY (id)
+);
 
--- sélection plats traiteur
-SELECT plat.catégorie, produit.id, produit.libellé, plat.description, produit.prix
-FROM traiteur
-INNER JOIN produit
-        ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
-        ON produit.id = produit_commande.idproduit
-    INNER JOIN plat
-        ON produit.id = plat.idproduit
-    LEFT JOIN styleculinaire
-        ON plat.idstyleculinaire = styleculinaire.id
-WHERE traiteur.idpersonne = 1;
--- sélection menus traiteur
-SELECT produit.id, produit.libellé, produit.prix, menu.nombrepersonnes
-FROM traiteur
-INNER JOIN produit
-        ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
-        ON produit.id = produit_commande.idproduit
-    INNER JOIN menu
-        ON produit.id = menu.idproduit
-WHERE traiteur.idpersonne = 1;
--- trier par type ?
+DROP TABLE IF EXISTS Administrateur CASCADE;
+CREATE TABLE Administrateur (
+    idPersonne INTEGER,
+    CONSTRAINT PK_Administrateur PRIMARY KEY (idPersonne)
+);
 
--- commandes d'un client
-SELECT commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement,
-       SUM(produit) AS "Prix commande"
-FROM commande
-    INNER JOIN produit_commande
-        ON commande.nocommande = produit_commande.nocommande
-    INNER JOIN produit
-        ON produit_commande.idproduit = produit.id
-    INNER JOIN personne
-        ON commande.idpersonne = personne.id
-WHERE personne.id = 1
-GROUP BY commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement
-ORDER BY commande.dateheure DESC;
+DROP TABLE IF EXISTS Traiteur CASCADE;
+CREATE TABLE Traiteur (
+    idPersonne INTEGER,
+    idCours INTEGER,
+    statut BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT PK_Traiteur PRIMARY KEY (idPersonne)
+);
 
--- commandes d'un traiteur
-SELECT commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement,
-       SUM(produit.prix) AS "Prix commande",
-       COUNT(produit)
-FROM commande
-    INNER JOIN produit_commande
-        ON commande.nocommande = produit_commande.nocommande
-    INNER JOIN produit
-        ON produit_commande.idproduit = produit.id
-    INNER JOIN traiteur
-        ON traiteur.idpersonne = produit.idtraiteur
-WHERE traiteur.idpersonne = 1
-GROUP BY commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement
-ORDER BY commande.dateheure DESC;
+DROP TABLE IF EXISTS Cours CASCADE;
+CREATE TABLE Cours (
+    id SERIAL,
+    dateCours DATE NOT NULL,
+    idAdmin INTEGER NOT NULL,
+    CONSTRAINT PK_Cours PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS Produit CASCADE;
+CREATE TABLE Produit (
+    id SERIAL,
+    prix NUMERIC(5, 2) NOT NULL,
+    libellé VARCHAR(50) NOT NULL,
+    idTraiteur INTEGER NOT NULL,
+    CONSTRAINT PK_Produit PRIMARY KEY (id),
+    CONSTRAINT CHK_Produit_prix CHECK ( prix > 0 )
+);
+
+DROP TABLE IF EXISTS Menu CASCADE;
+CREATE TABLE Menu (
+      idProduit INTEGER,
+      nombrePersonnes INTEGER NOT NULL DEFAULT 1,
+      CONSTRAINT PK_Menu PRIMARY KEY (idProduit),
+      CONSTRAINT CHK_Menu_nombrePersonnes CHECK ( nombrePersonnes > 0 )
+);
+
+DROP TABLE IF EXISTS Plat CASCADE;
+CREATE TABLE Plat (
+    idProduit INTEGER,
+    description VARCHAR(200),
+    catégorie Plat_categorie NOT NULL,
+    idStyleCulinaire INTEGER,
+    CONSTRAINT PK_Plat PRIMARY KEY (idProduit)
+);
+
+DROP TABLE IF EXISTS Menu_Plat CASCADE;
+CREATE TABLE Menu_Plat (
+    idMenu INTEGER,
+    idPlat INTEGER,
+    CONSTRAINT PK_Menu_Plat PRIMARY KEY (idMenu, idPlat)
+);
+
+DROP TABLE IF EXISTS StyleCulinaire CASCADE;
+CREATE TABLE StyleCulinaire (
+    id SERIAL,
+    nom VARCHAR(30) NOT NULL,
+    régionProvenance VARCHAR(50) NOT NULL,
+    CONSTRAINT PK_StyleCulinaire PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS Commande CASCADE;
+CREATE TABLE Commande (
+    noCommande SERIAL,
+    dateHeure TIMESTAMP NOT NULL,
+    adresseLivraison VARCHAR(100) NOT NULL,
+    statut Commande_statut NOT NULL,
+    noPaiement SERIAL,
+    datePaiement DATE NOT NULL,
+    moyenPaiement Commande_moyenPaiement NOT NULL,
+    idPersonne INTEGER NOT NULL,
+    CONSTRAINT PK_Commande PRIMARY KEY (noCommande)
+);
+
+DROP TABLE IF EXISTS Produit_Commande CASCADE;
+CREATE TABLE Produit_Commande (
+    idProduit INTEGER,
+    noCommande INTEGER,
+    quantité INTEGER NOT NULL,
+    CONSTRAINT PK_Produit_Commande PRIMARY KEY (idProduit, noCommande),
+    CONSTRAINT CHK_Produit_Commande_quantite CHECK ( quantité > 0 )
+);
+
+DROP TABLE IF EXISTS Evaluation CASCADE;
+CREATE TABLE Evaluation (
+    id SERIAL,
+    dateEvaluation DATE NOT NULL,
+    note INTEGER NOT NULL,
+    noCommande INTEGER NOT NULL UNIQUE,
+    commentaire VARCHAR(500),
+    CONSTRAINT PK_Evaluation PRIMARY KEY (id),
+    CONSTRAINT CHK_Evaluation_note CHECK ( note > 0 AND note < 6)
+);
+
+----------------------- Index
+DROP INDEX IF EXISTS IDX_FK_AdminPlateforme_idPersonne;
+CREATE INDEX IDX_FK_AdminPlateforme_idPersonne ON Administrateur (idPersonne);
+
+DROP INDEX IF EXISTS IDX_FK_Traiteur_idPersonne;
+CREATE INDEX IDX_FK_Traiteur_idPersonne ON Traiteur(idPersonne);
+
+DROP INDEX IF EXISTS IDX_FK_Traiteur_idCours;
+CREATE INDEX IDX_FK_Traiteur_idCours ON Traiteur(idCours);
+
+DROP INDEX IF EXISTS IDX_FK_Cours_idAdmin;
+CREATE INDEX IDX_FK_Cours_idAdmin ON Cours(idAdmin);
+
+DROP INDEX IF EXISTS IDX_FK_Produit_idTraiteur;
+CREATE INDEX IDX_FK_Produit_idTraiteur ON Produit(idTraiteur);
+
+DROP INDEX IF EXISTS IDX_FK_Menu_idProduit;
+CREATE INDEX IDX_FK_Menu_idProduit ON Menu(idProduit);
+
+DROP INDEX IF EXISTS IDX_FK_Plat_idProduit;
+CREATE INDEX IDX_FK_Plat_idProduit ON Plat(idProduit);
+
+DROP INDEX IF EXISTS IDX_FK_Plat_idStyleCulinaire;
+CREATE INDEX IDX_FK_Plat_idStyleCulinaire ON Plat(idStyleCulinaire);
+
+DROP INDEX IF EXISTS IDX_FK_Menu_Plat_idMenu;
+CREATE INDEX IDX_FK_Menu_Plat_idMenu ON Menu_Plat(idMenu);
+
+DROP INDEX IF EXISTS IDX_FK_Menu_Plat_idPlat;
+CREATE INDEX IDX_FK_Menu_Plat_idPlat ON Menu_Plat(idPlat);
+
+DROP INDEX IF EXISTS IDX_FK_Commande_idPersonne;
+CREATE INDEX IDX_FK_Commande_idPersonne ON Commande(idPersonne);
+
+DROP INDEX IF EXISTS IDX_FK_Produit_Commande_idProduit;
+CREATE INDEX IDX_FK_Produit_Commande_idProduit ON Produit_Commande(idProduit);
+
+DROP INDEX IF EXISTS IDX_FK_Produit_Commande_noCommande;
+CREATE INDEX IDX_FK_Produit_Commande_noCommande ON Produit_Commande(noCommande);
+
+DROP INDEX IF EXISTS IDX_FK_Evaluation_noCommande;
+CREATE INDEX IDX_FK_Evaluation_noCommande ON Evaluation(noCommande);
+
+----------------------- Contraintes de clés étrangères
+--- Administrateur
+ALTER TABLE Administrateur
+    ADD CONSTRAINT FK_AdminPlateforme_idPersonne
+        FOREIGN KEY (idPersonne)
+            REFERENCES Personne(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+--- Traiteur
+ALTER TABLE Traiteur
+    ADD CONSTRAINT FK_Administrateur_idPersonne
+        FOREIGN KEY (idPersonne)
+            REFERENCES Personne(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+ALTER TABLE Traiteur
+    ADD CONSTRAINT FK_Traiteur_idCours
+        FOREIGN KEY (idCours)
+            REFERENCES Cours(id)
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+
+--- Cours
+ALTER TABLE Cours
+    ADD CONSTRAINT FK_Cours_idAdmin
+        FOREIGN KEY (idAdmin)
+            REFERENCES Administrateur (idPersonne)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+--- Produit
+ALTER TABLE Produit
+    ADD CONSTRAINT FK_Produit_idTraiteur
+        FOREIGN KEY (idTraiteur)
+            REFERENCES Traiteur(idPersonne)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+--- Menu
+ALTER TABLE Menu
+    ADD CONSTRAINT FK_Menu_id
+        FOREIGN KEY (idProduit)
+            REFERENCES Produit(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+--- Plat
+ALTER TABLE Plat
+    ADD CONSTRAINT FK_Plat_id
+        FOREIGN KEY (idProduit)
+            REFERENCES Produit(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+ALTER TABLE Plat
+    ADD CONSTRAINT FK_Plat_idStyleCulinaire
+        FOREIGN KEY (idStyleCulinaire)
+            REFERENCES StyleCulinaire(id)
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+
+--- Menu_Plat
+ALTER TABLE Menu_Plat
+    ADD CONSTRAINT FK_idMenu
+        FOREIGN KEY (idMenu)
+            REFERENCES Menu(idProduit)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+ALTER TABLE Menu_Plat
+    ADD CONSTRAINT FK_idPlat
+        FOREIGN KEY (idPlat)
+            REFERENCES Plat(idProduit)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+--- Commande
+ALTER TABLE Commande
+    ADD CONSTRAINT FK_idPersonne
+        FOREIGN KEY (idPersonne)
+            REFERENCES Personne(id)
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+
+--- Produit_Commande
+ALTER TABLE Produit_Commande
+    ADD CONSTRAINT FK_idProduit
+        FOREIGN KEY (idProduit)
+            REFERENCES Produit(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+ALTER TABLE Produit_Commande
+    ADD CONSTRAINT FK_noCommande
+        FOREIGN KEY (noCommande)
+            REFERENCES Commande(noCommande)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+--- Evaluation
+ALTER TABLE Evaluation
+    ADD CONSTRAINT FK_noCommande
+        FOREIGN KEY (noCommande)
+            REFERENCES Commande(noCommande)
+ON DELETE CASCADE
+ON UPDATE CASCADE;

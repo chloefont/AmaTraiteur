@@ -64,7 +64,7 @@ echo "<pre>".print_r($users)."</pre><br />";
                 </div>
                 
                 <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60rem;">
+                    <div class="card traiteur-card" style="width: 60%;">
                         <div class="card-body">
                             <h5 class="card-title">Note</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -73,7 +73,7 @@ echo "<pre>".print_r($users)."</pre><br />";
                     </div>
                 </div>
                 <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60rem;">
+                    <div class="card traiteur-card" style="width: 60%;">
                         <div class="card-body">
                             <h5 class="card-title">Traiteur 2</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -81,7 +81,7 @@ echo "<pre>".print_r($users)."</pre><br />";
                     </div>
                 </div>
                 <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60rem;">
+                    <div class="card traiteur-card" style="width: 60%;">
                         <div class="card-body">
                             <h5 class="card-title">Traiteur 3</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>

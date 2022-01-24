@@ -86,7 +86,6 @@ echo "<pre>".print_r($users)."</pre><br />";
                         <div class="card-body">
                             <h5 class="card-title">Traiteur 1</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
                             <?= "<a href='traiteur.php?id=10' class='btn btn-primary'>New Page</a>";?>
                         </div>
                     </div>
