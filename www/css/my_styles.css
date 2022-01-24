@@ -1,0 +1,18 @@
+.traiteur-list {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+.center-text {
+    text-align: center;
+}
+
+.traiteur-card {
+    margin: 10px auto;
+}
+
+.center-item {
+    margin: 10px auto;
+}
