@@ -1,9 +1,16 @@
 <?php
-require_once("db_connect.php");
-$id = $_GET["id"];
-$id = 3;
-$persoInfos = getPersoInfos($id);
-echo "<pre>".print_r($persoInfos)."</pre><br />";
+require_once("back/db_connect.php");
+session_start();
+if(isset($_GET['id'])){
+    $id = $_GET["id"];
+    $persoInfos = getPersoInfos($id);
+    echo "<pre>".print_r($persoInfos)."</pre><br />";
+}else{
+    echo 'not set !!!!!!!!!';
+}
+
+print_r($_SESSION["cart"]);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -57,14 +64,16 @@ echo "<pre>".print_r($persoInfos)."</pre><br />";
                         <div class="container-fluid p-0">
                             <h3 class="center-text">Historique des commandes</h3>
 
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Entrée</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <?php foreach(getOldOrders($_GET['id']) as $order): ?>
+                                <div class="row g-0">
+                                    <div class="card traiteur-card" style="width: 80%;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php $traitor = getPersoInfos($order['idpersonne'])[0]; echo $traitor['prénom']." ".$traitor['nom'] ?></h5>
+                                            <p class="card-text"><?= $order['dateCommande'].", ".$order['Prix commande']."CHF" ?></p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
                     </section>
                 </div>
@@ -73,7 +82,40 @@ echo "<pre>".print_r($persoInfos)."</pre><br />";
                 <div class="col">
                 <section class="showcase traiteur-list">
                         <div class="container-fluid p-0">
-                            <h3 class="center-text">Menus</h3>
+
+                        <!-- Client -->
+                        <?php if (!isTraitor($id)): ?>
+                            <h3 class="center-text">Commande en cours</h3>
+                            <?php if(count($_SESSION["cart"]) != 0): ?>
+                                <?php foreach($_SESSION["cart"] as $idP): ?>
+                                <?php foreach(getProduct($idP) as $product): ?>
+                                <div class="row g-0">
+                                    <div class="card traiteur-card" style="width: 80%;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= $product['libellé'] ?></h5>
+                                            <p class="card-text"><?= $product['prix'] ?></p>
+                                            <form method="post" action="<?= "removeFromCart.php?id=".$id ?>">
+                                                <input type="hidden" name="plat-id" value=<?= $product['id'] ?>>
+                                                <input type="submit" class="btn btn-primary" value="Supprimer">
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            
+                                <form method="post" action="<?= "sendOrder.php?id=".$id ?>">
+                                    <input type="hidden" name="plat-id" value=<?= $id ?>>
+                                    <input type="submit" class="btn btn-primary" value="Passer la commande">
+                                </form>
+                            <?php else: ?>
+                                <p class="center-text">Pas de commande en cours</p>
+                            <?php endif ?>
+
+                        <!-- Traiteur -->
+                        <?php else: ?>
+
+                            <h3 class="Ajouter un produit"></h3>
 
                             <div class="row g-0">
                                 <div class="card traiteur-card" style="width: 80%;">
@@ -84,24 +126,8 @@ echo "<pre>".print_r($persoInfos)."</pre><br />";
                                     </div>
                                 </div>
                             </div>
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 2</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 3</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                                    </div>
-                                </div>
-                            </div>
+                        
+                        <?php endif ?>
                         </div>
                     </section>
                 </div>

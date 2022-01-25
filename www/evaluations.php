@@ -1,9 +1,9 @@
-<!-- <?php
-require_once("db_connect.php");
+<?php
+require_once("back/db_connect.php");
 $idTraitor = $_GET["idTraitor"];
 $id = $_GET["id"];
 
-?> -->
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -41,7 +41,7 @@ $id = $_GET["id"];
                             <h2 class="mb-5">note/5</h2>
                             <h4 class="mb-5">Adresse, numéro téléphone</h4>
                             <h4 class="mb-5">Adresse mail</h4>
-                            <<?= "a href='traiteur.php?id=1' class='btn btn-primary'>Retour sur la page du traiteur</a>" ?>
+                            <<?= "a href='traiteur.php?id=".$id."&idTraitor=".$row['id']."' class='btn btn-primary'>Retour sur la page du traiteur</a>" ?>
                         </div>
                     </div>
                 </div>
