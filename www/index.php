@@ -27,6 +27,7 @@ $id = 3;
             <div class="container">
                 <a class="navbar-brand" href=<?="index.php?id=".$id?>>AmaTraiteur</a>
                 <a class="btn btn-primary" href=<?="account.php?id=".$id?>>Mon compte</a>
+                <a class="btn btn-primary" href=<?="inscription.php?id=".$id?>>S'inscrire</a>
             </div>
         </nav>
         <!-- Masthead-->

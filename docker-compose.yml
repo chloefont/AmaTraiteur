@@ -18,7 +18,7 @@ services:
             dockerfile: Dockerfile_php
         image: php_server:latest
         ports:
-            - "8080:80"
+            - "5555:80"
         volumes:
             - ./www/:/var/www/html/
         environment:
