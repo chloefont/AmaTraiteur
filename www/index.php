@@ -1,6 +1,16 @@
 <?php
-require_once("db_connect.php");
-$id = 3;
+    require_once("back/db_connect.php");
+    if ($_GET["id"] == null) {
+        $id = 5;
+    } else {
+        $id = $_GET["id"];
+    }
+    
+    session_start();
+    if ($_SESSION["cart"] == null) {
+        $_SESSION["cart"]= array();
+    }
+    print_r($_SESSION["cart"]);
 
 ?>
 <!DOCTYPE html>
@@ -69,13 +79,14 @@ $id = 3;
 
         <section class="showcase traiteur-list">
             <div class="container-fluid p-0">
-                <?php foreach($users as $row): ?>
+            <h3 class="center-text">10 meilleurs traiteurs</h3>
+                <?php foreach(getTenBestRankedTraitors() as $row): ?>
                 <div class="row g-0">
                     <div class="card traiteur-card" style="width: 60rem;">
                         <div class="card-body">
                             <h5 class="card-title"><?= $row['prénom']." ".$row['nom'] ?></h5>
                             <p class="card-text"><?= $row['adresse'].", ".$row['notelephone'].", note : ".$row['notelephone']."/5" ?></p>
-                            <?= "<a href='traiteur.php?idTraitor=".$row['id']."&id=1' class='btn btn-primary'>Voir la page</a>";?>
+                            <?= "<a href='traiteur.php?id=".$id."&idTraitor=".$row['id']."' class='btn btn-primary'>Voir la page</a>";?>
                         </div>
                     </div>
                 </div>

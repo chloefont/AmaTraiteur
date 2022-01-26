@@ -1,8 +1,11 @@
 <?php
-require_once("db_connect.php");
-$idTraitor = $_GET["idTraitor"];
-$id = $_GET["id"];
-$id = 3;
+    require_once("back/db_connect.php");
+    $idTraitor = $_GET["idTraitor"];
+    $id = $_GET["id"];
+
+    $mains = getTraitorMain($idTraitor);
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +44,7 @@ $id = 3;
                             <h2 class="mb-5">note/5</h2>
                             <h4 class="mb-5">Adresse, numéro téléphone</h4>
                             <h4 class="mb-5">Adresse mail</h4>
-                            <<?= "a href='evaluations.php?idTraitor=".$idTraitor."&id=".$id."' class='btn btn-primary'>Evaluation</a>" ?>
+                            <<?= "a href='evaluations.php?id=".$id."&idTraitor=".$idTraitor."' class='btn btn-primary'>Evaluation</a>" ?>
                         </div>
                     </div>
                 </div>
@@ -60,21 +63,33 @@ $id = 3;
                                     <div class="card-body">
                                         <h5 class="card-title">Entrée</h5>
                                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Commander</a>
+                                        <!-- <a href="#" class="btn btn-primary">Commander</a> -->
+                                        <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor ?>">
+                                        <!-- <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>"> -->
+                                            <input type="hidden" name="plat-id" value="10">
+                                            <input type="submit" class="btn btn-primary" value="Commander">
+                                        </form>
+
                                     </div>
                                 </div>
                             </div>
                             <h3 class="center-text">Plats</h3>
 
+                            <?php foreach($mains as $row): ?>
                             <div class="row g-0">
                                 <div class="card traiteur-card" style="width: 80%;">
                                     <div class="card-body">
-                                        <h5 class="card-title">Traiteur 2</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
+                                        <h5 class="card-title"><?= $row['libellé'] ?></h5>
+                                        <p class="card-text"><?= $row['description'].", ".$row['prix']."chf"?></p>
+                                        <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor?>">
+                                            <input type="hidden" name="plat-id" value=<?= $row['id'] ?>>
+                                            <input type="submit" class="btn btn-primary" value="Commander">
+                                        </form>
                                     </div>
                                 </div>
                             </div>
+                            <?php endforeach; ?>
+
                             <h3 class="center-text">Desserts</h3>
 
                             <div class="row g-0">
