@@ -3,8 +3,16 @@
     $idTraitor = $_GET["idTraitor"];
     $id = $_GET["id"];
 
-    $mains = getTraitorMain($idTraitor);
+    $entrees = getTraitorCourses($idTraitor, 'Entrée');
+    $plats = getTraitorCourses($idTraitor, 'Plat');
+    $desserts = getTraitorCourses($idTraitor, 'Dessert');
 
+    $menus = getTraitoMenusInfos($idTraitor);
+
+    session_start();
+    if ($_SESSION["cart"] == null) {
+        $_SESSION["cart"]= array();
+    }
 
 ?>
 <!DOCTYPE html>
@@ -58,29 +66,37 @@
                         <div class="container-fluid p-0">
                             <h3 class="center-text">Entrées</h3>
 
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Entrée</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <!-- <a href="#" class="btn btn-primary">Commander</a> -->
-                                        <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor ?>">
-                                        <!-- <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>"> -->
-                                            <input type="hidden" name="plat-id" value="10">
-                                            <input type="submit" class="btn btn-primary" value="Commander">
-                                        </form>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <h3 class="center-text">Plats</h3>
-
-                            <?php foreach($mains as $row): ?>
+                            <?php foreach($entrees as $row): ?>
                             <div class="row g-0">
                                 <div class="card traiteur-card" style="width: 80%;">
                                     <div class="card-body">
                                         <h5 class="card-title"><?= $row['libellé'] ?></h5>
-                                        <p class="card-text"><?= $row['description'].", ".$row['prix']."chf"?></p>
+                                        <?php if($row['description'] == null): ?>
+                                            <p class="card-text"><?= $row['prix']."CHF"?></p>
+                                        <?php else: ?>
+                                            <p class="card-text"><?= $row['description'].", ".$row['prix']."CHF"?></p>
+                                        <?php endif ?>
+                                        <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor?>">
+                                            <input type="hidden" name="plat-id" value=<?= $row['id'] ?>>
+                                            <input type="submit" class="btn btn-primary" value="Commander">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+
+                            <h3 class="center-text">Plats</h3>
+
+                            <?php foreach($plats as $row): ?>
+                            <div class="row g-0">
+                                <div class="card traiteur-card" style="width: 80%;">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><?= $row['libellé'] ?></h5>
+                                        <?php if($row['description'] == null): ?>
+                                            <p class="card-text"><?= $row['prix']."CHF"?></p>
+                                        <?php else: ?>
+                                            <p class="card-text"><?= $row['description'].", ".$row['prix']."CHF"?></p>
+                                        <?php endif ?>
                                         <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor?>">
                                             <input type="hidden" name="plat-id" value=<?= $row['id'] ?>>
                                             <input type="submit" class="btn btn-primary" value="Commander">
@@ -92,15 +108,24 @@
 
                             <h3 class="center-text">Desserts</h3>
 
+                            <?php foreach($desserts as $row): ?>
                             <div class="row g-0">
                                 <div class="card traiteur-card" style="width: 80%;">
                                     <div class="card-body">
-                                        <h5 class="card-title">Traiteur 3</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
+                                        <h5 class="card-title"><?= $row['libellé'] ?></h5>
+                                        <?php if($row['description'] == null): ?>
+                                            <p class="card-text"><?= $row['prix']."CHF"?></p>
+                                        <?php else: ?>
+                                            <p class="card-text"><?= $row['description'].", ".$row['prix']."CHF"?></p>
+                                        <?php endif ?>
+                                        <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor?>">
+                                            <input type="hidden" name="plat-id" value=<?= $row['id'] ?>>
+                                            <input type="submit" class="btn btn-primary" value="Commander">
+                                        </form>
                                     </div>
                                 </div>
                             </div>
+                            <?php endforeach; ?>
                         </div>
                     </section>
                 </div>
@@ -109,33 +134,23 @@
                         <div class="container-fluid p-0">
                             <h3 class="center-text">Menus</h3>
 
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 1</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <?php foreach($menus as $menu): ?>
+                                <?php $courses = getCoursesFromMenu($menu['id']) ?>
+                                <div class="row g-0">
+                                    <div class="card traiteur-card" style="width: 80%;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= $menu['libellé'] ?></h5>
+                                            <?php foreach($courses as $course): ?>
+                                                <p class="card-text"><?= $course['libellé'] ?></p>
+                                            <?php endforeach ?>
+                                            <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor?>">
+                                                <input type="hidden" name="plat-id" value=<?= $menu['id'] ?>>
+                                                <input type="submit" class="btn btn-primary" value="Commander">
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 2</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 3</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                                    </div>
-                                </div>
-                            </div>
+                            <?php endforeach ?>
                         </div>
                     </section>
                 </div>

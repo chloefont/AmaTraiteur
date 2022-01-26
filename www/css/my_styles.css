@@ -16,3 +16,7 @@
 .center-item {
     margin: 10px auto;
 }
+
+.padding-top--small {
+    padding-top: 0.5rem;
+}

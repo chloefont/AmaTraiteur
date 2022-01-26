@@ -10,7 +10,6 @@
     if ($_SESSION["cart"] == null) {
         $_SESSION["cart"]= array();
     }
-    print_r($_SESSION["cart"]);
 
 ?>
 <!DOCTYPE html>

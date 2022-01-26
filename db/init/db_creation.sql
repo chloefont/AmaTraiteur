@@ -1,5 +1,3 @@
-CREATE DATABASE zizi;
-
 ----------------------- Enum
 DROP TYPE IF EXISTS Plat_catégorie CASCADE;
 CREATE TYPE Plat_catégorie AS ENUM ('Entrée', 'Plat', 'Dessert');
