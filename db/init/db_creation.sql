@@ -334,8 +334,8 @@ CREATE OR REPLACE FUNCTION function_check_menu()
 BEGIN
     IF (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idPlat) NOT IN
     (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idMenu) THEN
-        RAISE EXCEPTION 'Plat % invalide pour Menu %', NEW.idPlat, NEW.idMenu
-             USING HINT = 'Un traiteur ne peut ajouter des plats à son menu que si ce sont ses propres plats';
+            RAISE EXCEPTION 'Plat % invalide pour Menu %', NEW.idPlat, NEW.idMenu
+            USING HINT = 'Un traiteur ne peut ajouter des plats à son menu que si ce sont ses propres plats';
 ELSE
              RETURN NEW;
 END IF;
@@ -347,11 +347,32 @@ CREATE TRIGGER check_menu
     FOR EACH ROW
     EXECUTE FUNCTION function_check_menu();
 
+-- Trigger empechant les traiteur de se commander des plats à eux-même
+
+CREATE OR REPLACE FUNCTION function_check_auto_commande()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idProduit) IN
+       (SELECT Commande.idPersonne FROM Commande WHERE Commande.noCommande = NEW.noCommande) THEN
+            DELETE FROM Produit_Commande WHERE noCommande = NEW.noCommande;
+            RAISE EXCEPTION 'Produit % invalide pour commande no%', NEW.idProduit, NEW.noCommande
+            USING HINT = 'Un traiteur ne peut pas se commander des plats à lui-même';
+    ELSE
+            RETURN NEW;
+    END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_commande
+    BEFORE INSERT ON Produit_Commande
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_auto_commande();
+
 --- Peuplement de la base de données
 
 --- Personne
 INSERT INTO Personne (nom, prénom, adresse, noTelephone, email)
-VALUES ('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNeym@gmail.com'),
+VALUES('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNeym@gmail.com'),
       ('Debonlyvre', 'Julie', 'Route de Jésuy-Père-Du 31', '031 532 2135', 'LaJulie@hotmail.com'),
       ('Peausy-Scion', 'Paul', 'Chemin du Preaujay-Bédéhère 7', '021 423 1245', 'jaimelesvoiture@bluewin.ch'),
       ('Aideufoi', 'Marie', 'Avenue des Cordet 92', '021 422 2314', 'asdfmail@mail.com'),
@@ -381,11 +402,11 @@ VALUES ('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNe
       ('Colin', 'Nathan', 'Avenue Duseine 43', '083 209 3285', 'nathan.colin@gmail.com'),
       ('Ploira', 'Dylan', 'Route de Moralise 23', '094 235 9853', 'dylan.ploira@mail.com'),
       ('Andry', 'Alex', 'Chemin Alexandra 91', '093 439 3249', 'claude.francois@caramail.com'),
-       ('Calc', 'Sandra', 'Route de Poudereux 31', '924 321 3255', 'sandra.callc@gmail.com'),
-       ('Martinez', 'Martin', 'Chemin Vuchardaz 23', '034 321 9843', 'martin.ez@hotmail.com'),
-       ('Umene', 'Cixi', 'Avenue Ducheumain 10', '043 329 8140', 'cixi.umene@bluewin.ch'),
-        ('Grajet', 'Patrick', 'Avenu Minet 66', '034 324 9841', 'pat.g@gmail.com'),
-       ('Boquet', 'Cybille', 'Route Dejouey 4', '043 075 9832', 'bilboquet@gmail.com');
+      ('Calc', 'Sandra', 'Route de Poudereux 31', '924 321 3255', 'sandra.callc@gmail.com'),
+      ('Martinez', 'Martin', 'Chemin Vuchardaz 23', '034 321 9843', 'martin.ez@hotmail.com'),
+      ('Umene', 'Cixi', 'Avenue Ducheumain 10', '043 329 8140', 'cixi.umene@bluewin.ch'),
+      ('Grajet', 'Patrick', 'Avenu Minet 66', '034 324 9841', 'pat.g@gmail.com'),
+      ('Boquet', 'Cybille', 'Route Dejouey 4', '043 075 9832', 'bilboquet@gmail.com');
 
 -- Administrateur -- Les 10 premières personnes sont Administrateurs
 INSERT INTO Administrateur(idPersonne)
@@ -701,6 +722,10 @@ VALUES (timestamp '2021-11-04 05:21:14', 5, 1),
        (timestamp '2022-01-08 21:55:35', 2, 15);
 
 -- Insertion de Test pour les triggers
+
+INSERT INTO Commande(dateHeure, adresseLivraison, statut, datePaiement, moyenPaiement, idPersonne) VALUES(timestamp '2021-11-01 19:27:02', 'Route de la Patience 404', 'En cours de livraison'::Commande_statut, -- Commande du traiteur 1 (idPersonne = 11) à lui-même
+                            timestamp '2021-11-01 19:27:05', 'twint'::Commande_moyenPaiement, 11);
+INSERT INTO Produit_Commande VALUES(1, 16, 1);
 
 INSERT INTO Menu_Plat VALUES(14, 9); -- Ne devrait pas poser de problème
 INSERT INTO Menu_Plat VALUES(14, 52); -- Devrait lever une exception
