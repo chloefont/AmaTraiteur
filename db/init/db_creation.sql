@@ -354,7 +354,6 @@ CREATE OR REPLACE FUNCTION function_check_auto_commande()
 BEGIN
     IF (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idProduit) IN
        (SELECT Commande.idPersonne FROM Commande WHERE Commande.noCommande = NEW.noCommande) THEN
-            DELETE FROM Produit_Commande WHERE noCommande = NEW.noCommande;
             RAISE EXCEPTION 'Produit % invalide pour commande no%', NEW.idProduit, NEW.noCommande
             USING HINT = 'Un traiteur ne peut pas se commander des plats à lui-même';
     ELSE
@@ -363,7 +362,7 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER check_commande
+CREATE TRIGGER check_auto_commande
     BEFORE INSERT ON Produit_Commande
     FOR EACH ROW
     EXECUTE FUNCTION function_check_auto_commande();
