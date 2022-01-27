@@ -82,11 +82,62 @@ function getTraitoMenusInfos($id) {
     return $sth->fetchAll();
 }
 
+function getTraitorEvaluations($id, $order) {
+    
+    $sql = <<<'SQL'
+        SELECT evaluation.note, evaluation.commentaire, evaluation.dateevaluation, produit.idtraiteur
+        FROM traiteur
+            INNER JOIN produit
+                ON produit.idtraiteur = traiteur.idpersonne
+            INNER JOIN produit_commande
+                ON produit.id = produit_commande.idproduit
+            INNER JOIN commande
+                ON produit_commande.nocommande = commande.nocommande
+            INNER JOIN evaluation
+                ON commande.nocommande = evaluation.nocommande
+        WHERE produit.idtraiteur = :id
+    SQL;
+
+    if ($order == 'note') {
+        $sql = $sql.' ORDER BY evaluation.note DESC;';
+    } else {
+        $sql = $sql.' ORDER BY evaluation.dateevaluation DESC;';
+    }
+
+    global $connection;
+    $sth = $connection->prepare($sql);
+    $sth->bindParam('id', $id, PDO::PARAM_INT);
+
+    $sth->execute();
+    return $sth->fetchAll();
+}
+
 function getPersoInfos($id) {
     $sql = <<<'SQL'
         SELECT *
         FROM personne
         WHERE personne.id = :id;
+    SQL;
+
+    global $connection;
+    $sth = $connection->prepare($sql);
+    $sth->bindParam('id', $id, PDO::PARAM_INT);
+
+    $sth->execute();
+    return $sth->fetchAll();
+}
+
+function getGradetraitor($id) {
+    $sql = <<<'SQL'
+        SELECT round(AVG(note), 2) AS moyenne
+        FROM Evaluation
+            INNER JOIN Commande
+                ON Evaluation.nocommande = Commande.nocommande
+            INNER JOIN Produit_Commande
+                ON Commande.nocommande = Produit_Commande.nocommande
+            INNER JOIN produit
+                ON produit_commande.idproduit = produit.id
+        WHERE produit.idtraiteur = :id;
     SQL;
 
     global $connection;

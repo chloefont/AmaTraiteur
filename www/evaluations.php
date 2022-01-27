@@ -3,6 +3,18 @@ require_once("back/db_connect.php");
 $idTraitor = $_GET["idTraitor"];
 $id = $_GET["id"];
 
+$traitorInfos = getPersoInfos($idTraitor);
+$note = getGradetraitor($idTraitor);
+
+$filter = 'dateevaluation';
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//     if ($_POST['name'] == 'notes') {
+//         $filter = 'note';
+//     }
+// }
+
+$evaluations = getTraitorEvaluations($idTraitor, $filter);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,11 +49,13 @@ $id = $_GET["id"];
                     <div class="col-xl-6">
                         <div class="text-center text-white">
                             <!-- Page heading-->
-                            <h1 class="mb-5">Jean Didier le traiteur</h1>
-                            <h2 class="mb-5">note/5</h2>
-                            <h4 class="mb-5">Adresse, numéro téléphone</h4>
-                            <h4 class="mb-5">Adresse mail</h4>
-                            <<?= "a href='traiteur.php?id=".$id."&idTraitor=".$row['id']."' class='btn btn-primary'>Retour sur la page du traiteur</a>" ?>
+                            <?php foreach($traitorInfos as $row): ?>
+                            <h1 class="mb-5"><?= $row['prénom']." ".$row['nom'] ?></h1>
+                            <h2 class="mb-5"><?= "Note : ".$note[0]['moyenne']."/5" ?></h2>
+                            <h4 class="mb-5"><?= $row['adresse'].", ".$row['notelephone'] ?></h4>
+                            <h4 class="mb-5"><?= $row['email'] ?></h4>
+                            <?php endforeach ?>
+                            <<?= "a href='traiteur.php?id=".$id."&idTraitor=".$idTraitor."' class='btn btn-primary'>Retour sur la page du traiteur</a>" ?>
                         </div>
                     </div>
                 </div>
@@ -50,44 +64,31 @@ $id = $_GET["id"];
 
         <section class="showcase traiteur-list">
             <div class="container-fluid p-0">
-                <div classe="center-item">
-                    <div class="dropdow">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Filtre
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
-                    </div>
-                </div>
+                <!-- <div classe="center-item">
+                    <form method="post" action=">">
+                        <div class="dropdow">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                Filtre
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <li><a class="dropdown-item" name="dates">Date évaluation</a></li>
+                                <li><a class="dropdown-item" name="notes">Note</a></li>
+                            </ul>
+                        </div>
+                    </form>
+                </div> -->
                 
-                <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60%;">
-                        <div class="card-body">
-                            <h5 class="card-title">Note</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                <?php foreach($evaluations as $evaluation): ?>
+                    <div class="row g-0">
+                        <div class="card traiteur-card" style="width: 60%;">
+                            <div class="card-body">
+                                <h5 class="card-title"><?= "Note : ".$evaluation['note']."/5" ?></h5>
+                                <p class="card-text"><?= $evaluation['commentaire'] ?></p>
+                                <p class="card-text"><?= $evaluation['dateevaluation'] ?></p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60%;">
-                        <div class="card-body">
-                            <h5 class="card-title">Traiteur 2</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-0">
-                    <div class="card traiteur-card" style="width: 60%;">
-                        <div class="card-body">
-                            <h5 class="card-title">Traiteur 3</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach ?>
             </div>
         </section>
     
