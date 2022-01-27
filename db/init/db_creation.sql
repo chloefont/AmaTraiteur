@@ -285,6 +285,68 @@ FROM Menu
 		ON P_Plat.id = Plat.idproduit
 GROUP BY P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes;
 
+-- Trigger vérifiant l'héritage disjoint de Traiteur et Administrateur (Une personne ne peut être traiteur ET administrateur)
+
+-- Check lors d'insertion dans la table Administrateur
+
+CREATE OR REPLACE FUNCTION function_check_administrateur()
+	RETURNS TRIGGER AS $$
+BEGIN
+	IF NEW.idPersonne IN (SELECT idPersonne FROM Traiteur) THEN
+		RAISE EXCEPTION 'No Admninistrateur invalide --> %', NEW.idPersonne
+		USING HINT = 'L''heritage sur Personne est disjoint. '
+		             'Une personne ne peut appartenir a plusieurs sous-types.';
+ELSE
+		RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_administrateur
+    BEFORE INSERT ON Administrateur
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_administrateur();
+
+-- Check lors de l'insertion dans la table Traiteur
+
+CREATE OR REPLACE FUNCTION function_check_traiteur()
+	RETURNS TRIGGER AS $$
+BEGIN
+	IF NEW.idPersonne IN (SELECT idPersonne FROM Administrateur) THEN
+		RAISE EXCEPTION 'No Traiteur invalide --> %', NEW.idPersonne
+		USING HINT = 'L''heritage sur Personne est disjoint. '
+		             'Une personne ne peut appartenir a plusieurs sous-types.';
+ELSE
+		RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_traiteur
+    BEFORE INSERT ON Traiteur
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_traiteur();
+
+-- Trigger vérifiant qu'un menu soit composé de plats venant du même traiteur
+
+CREATE OR REPLACE FUNCTION function_check_menu()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idPlat) NOT IN
+    (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idMenu) THEN
+        RAISE EXCEPTION 'Plat % invalide pour Menu %', NEW.idPlat, NEW.idMenu
+             USING HINT = 'Un traiteur ne peut ajouter des plats à son menu que si ce sont ses propres plats';
+ELSE
+             RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_menu
+    BEFORE INSERT ON Menu_Plat
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_menu();
+
 --- Peuplement de la base de données
 
 --- Personne
@@ -424,6 +486,8 @@ VALUES (12.75, 'Nouilles crues aux petits pois', 11), -- Le traiteur (id = 11) n
        (11, 'Dessert surprise', 25),
        (27.75, 'Menu surprise', 25), -- 57
 
+       -- Produits associés aux traiteurs n'ayant pas suivi de cours
+
        (10, 'Anon', 26),
        (100, 'Anon', 26),
        (1, 'Anon', 26),
@@ -445,7 +509,7 @@ VALUES (12.75, 'Nouilles crues aux petits pois', 11), -- Le traiteur (id = 11) n
        (6, 'Anon', 30),
        (130, 'Anon', 30);
 
--- Produits associés aux traiteurs n'ayant pas suivi de cours
+
 
 -- Style Culinaire
 
@@ -636,46 +700,10 @@ VALUES (timestamp '2021-11-04 05:21:14', 5, 1),
        (timestamp '2002-08-11 13:13:06', 4, 13),
        (timestamp '2022-01-08 21:55:35', 2, 15);
 
--- Trigger vérifiant l'héritage disjoint de Traiteur et Administrateur (Une personne ne peut être traiteur ET administrateur)
--- Check lors d'insertion dans la table Administrateur
+-- Insertion de Test pour les triggers
 
-CREATE OR REPLACE FUNCTION function_check_administrateur()
-	RETURNS TRIGGER AS $$
-BEGIN
-	IF NEW.idPersonne IN (SELECT idPersonne FROM Traiteur) THEN
-		RAISE EXCEPTION 'No Admninistrateur invalide --> %', NEW.idPersonne
-		USING HINT = 'L''heritage sur Personne est disjoint. '
-		             'Une personne ne peut appartenir a plusieurs sous-types.';
-ELSE
-		RETURN NEW;
-END IF;
-END; $$
-LANGUAGE plpgsql;
-
-CREATE TRIGGER check_administrateur
-    BEFORE INSERT ON Administrateur
-    FOR EACH ROW
-    EXECUTE FUNCTION function_check_administrateur();
-
--- Check lors de l'insertion dans la table Traiteur
-
-CREATE OR REPLACE FUNCTION function_check_traiteur()
-	RETURNS TRIGGER AS $$
-BEGIN
-	IF NEW.idPersonne IN (SELECT idPersonne FROM Administrateur) THEN
-		RAISE EXCEPTION 'No Traiteur invalide --> %', NEW.idPersonne
-		USING HINT = 'L''heritage sur Personne est disjoint. '
-		             'Une personne ne peut appartenir a plusieurs sous-types.';
-ELSE
-		RETURN NEW;
-END IF;
-END; $$
-LANGUAGE plpgsql;
-
-CREATE TRIGGER check_traiteur
-    BEFORE INSERT ON Traiteur
-    FOR EACH ROW
-    EXECUTE FUNCTION function_check_traiteur();
+INSERT INTO Menu_Plat VALUES(14, 9); -- Ne devrait pas poser de problème
+INSERT INTO Menu_Plat VALUES(14, 52); -- Devrait lever une exception
 
 INSERT INTO Traiteur VALUES(1); -- Test ajout id Administrateur à Traiteur
 INSERT INTO Administrateur VALUES(11); -- Test ajout id Traiteur à Administrateur
