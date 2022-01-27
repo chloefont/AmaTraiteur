@@ -286,7 +286,7 @@ FROM Menu
 		ON P_Plat.id = Plat.idproduit
 GROUP BY P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes;
 
--- Trigger vérifiant l'héritage disjoint de Traiteur et Administrateur (Une personne ne peut être traiteur ET administrateur)
+-- Triggers vérifiant l'héritage disjoint de Traiteur et Administrateur (Une personne ne peut être traiteur ET administrateur)
 
 -- Check lors d'insertion dans la table Administrateur
 
@@ -328,9 +328,51 @@ CREATE TRIGGER check_traiteur
     FOR EACH ROW
     EXECUTE FUNCTION function_check_traiteur();
 
--- Trigger vérifiant qu'un menu soit composé de plats venant du même traiteur
+-- Trigger vérifiant l'héritage disjoint de Produit
+
+-- Check lors d'insertion dans Plat
+
+CREATE OR REPLACE FUNCTION function_check_plat()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.idProduit IN (SELECT idProduit FROM Menu) THEN
+        RAISE EXCEPTION 'No Plat invalide --> %', NEW.idProduit
+            USING HINT = 'L''heritage sur Produit est disjoint.'
+                'Un produit ne peut appartenir a plusieurs sous-types.';
+    ELSE
+        RETURN NEW;
+    END IF;
+END; $$
+    LANGUAGE plpgsql;
+
+CREATE TRIGGER check_plat
+    BEFORE INSERT ON Plat
+    FOR EACH ROW
+EXECUTE FUNCTION function_check_plat();
+
+-- Check lors d'insertion dans menu
 
 CREATE OR REPLACE FUNCTION function_check_menu()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.idProduit IN (SELECT idProduit FROM Plat) THEN
+        RAISE EXCEPTION 'No Menu invalide --> %', NEW.idProduit
+            USING HINT = 'L''heritage sur Produit est disjoint.'
+                'Un produit ne peut appartenir a plusieurs sous-types.';
+    ELSE
+        RETURN NEW;
+    END IF;
+END; $$
+    LANGUAGE plpgsql;
+
+CREATE TRIGGER check_menu
+    BEFORE INSERT ON Menu
+    FOR EACH ROW
+EXECUTE FUNCTION function_check_menu();
+
+-- Trigger vérifiant qu'un menu soit composé de plats venant du même traiteur
+
+CREATE OR REPLACE FUNCTION function_check_multi_menu()
     RETURNS TRIGGER AS $$
 BEGIN
     IF (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idPlat) NOT IN
@@ -343,10 +385,10 @@ END IF;
 END; $$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER check_menu
+CREATE TRIGGER check_multi_menu
     BEFORE INSERT ON Menu_Plat
     FOR EACH ROW
-    EXECUTE FUNCTION function_check_menu();
+    EXECUTE FUNCTION function_check_multi_menu();
 
 -- Trigger empechant les traiteur de se commander des plats à eux-même
 
@@ -367,6 +409,30 @@ CREATE TRIGGER check_auto_commande
     BEFORE INSERT ON Produit_Commande
     FOR EACH ROW
     EXECUTE FUNCTION function_check_auto_commande();
+
+-- Trigger empechant les commandes de produits venant de différents traiteurs
+
+CREATE OR REPLACE FUNCTION function_check_multi_commande()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.noCommande IN (SELECT Produit_Commande.noCommande FROM Produit_Commande) AND
+       (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idProduit) NOT IN
+        (SELECT DISTINCT Produit.idTraiteur
+         FROM Produit_Commande
+                INNER JOIN Produit ON Produit_Commande.idProduit = Produit.id
+         WHERE Produit_Commande.noCommande = NEW.noCommande) THEN
+            RAISE EXCEPTION 'Produit % invalide pour commande no%', NEW.idProduit, NEW.noCommande
+            USING HINT = 'Une commande ne peut pas concerner des produits de différents traiteurs';
+    ELSE
+        RETURN NEW;
+    END IF;
+END; $$
+    LANGUAGE plpgsql;
+
+CREATE TRIGGER check_multi_commande
+    BEFORE INSERT ON Produit_Commande
+    FOR EACH ROW
+EXECUTE FUNCTION function_check_multi_commande();
 
 --- Peuplement de la base de données
 
@@ -724,12 +790,29 @@ VALUES (timestamp '2021-11-04 05:21:14', 5, 'Super traiteur, je recommande.', 1)
 
 -- Insertion de Test pour les triggers
 
+-- Test heritage disjoint sur Produit
+--INSERT INTO Menu VALUES(1, 3);
+INSERT INTO Plat VALUES(8, 'coucou', 'Entrée'::Plat_catégorie, 1);
+
+-- Tests Commande de produits venant de différents traiteurs
+
+INSERT INTO Produit_Commande VALUES (3, 1, 1); -- Devrait marcher
+INSERT INTO Produit_Commande VALUES (20, 5, 2); -- Devrait marcher
+INSERT INTO Produit_Commande VALUES (32, 13, 1); -- Devrait lever une exception
+INSERT INTO Produit_Commande VALUES (16, 1, 1); -- Devrait lever une exception
+
+-- Tests Commande d'un traiteur à lui-même
+
 INSERT INTO Commande(dateHeure, adresseLivraison, statut, datePaiement, moyenPaiement, idPersonne) VALUES(timestamp '2021-11-01 19:27:02', 'Route de la Patience 404', 'En cours de livraison'::Commande_statut, -- Commande du traiteur 1 (idPersonne = 11) à lui-même
                             timestamp '2021-11-01 19:27:05', 'twint'::Commande_moyenPaiement, 11);
 INSERT INTO Produit_Commande VALUES(1, 16, 1);
 
-INSERT INTO Menu_Plat VALUES(14, 9); -- Ne devrait pas poser de problème
+-- Test composition de menu avec des plats d'un autre traiteur
+
+INSERT INTO Menu_Plat VALUES(14, 9); -- Devrait marcher
 INSERT INTO Menu_Plat VALUES(14, 52); -- Devrait lever une exception
 
-INSERT INTO Traiteur VALUES(1); -- Test ajout id Administrateur à Traiteur
-INSERT INTO Administrateur VALUES(11); -- Test ajout id Traiteur à Administrateur
+-- Test Héritage disjoint sur Personne
+
+INSERT INTO Traiteur VALUES(1); -- Devrait lever une exception
+INSERT INTO Administrateur VALUES(11); -- Devrait lever une exception
