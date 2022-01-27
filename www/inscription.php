@@ -1,4 +1,12 @@
 <?php
+require_once("db_connect.php");
+$id = 3;
+
+
+
+
+
+
 
 
 $connection = new PDO("pgsql:host=db_server;port=5432;dbname=amaTraiteur", $_ENV["DB_USER"], $_ENV["DB_PASSWORD"]);
@@ -65,6 +73,25 @@ if(isset($_POST['forminscription'])) {
 
 
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>AmaTraiteur - Home</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" type="text/css" />
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="css/my_styles.css" rel="stylesheet" />
+</head>
+<body>
 
 <html>
 <head>
@@ -72,6 +99,12 @@ if(isset($_POST['forminscription'])) {
     <meta charset="utf-8">
 </head>
 <body>
+<nav class="navbar navbar-light bg-light static-top">
+    <div class="container">
+        <a class="navbar-brand" href=<?="index.php?id=".$id?>>AmaTraiteur</a>
+        <a class="btn btn-primary" href=<?="connexion.php?id=".$id?>>Se connecter</a>
+    </div>
+</nav>
 <div align="center">
     <h2>S'inscrire</h2>
     <br /><br />
