@@ -321,7 +321,7 @@ SELECT NOW() + (random() * (NOW()+'100 days' - NOW())) + '20 days',
        num
 FROM generate_series(1, 5) AS num;
 
--- Traiteur -- Les personnes 11 à 20 sont des traiteurs et les 5 derniers n'ont pas suivi de cours METTRE PLUS DE TRAITEURS
+-- Traiteur -- Les personnes 11 à 30 sont des traiteurs et les 5 derniers n'ont pas suivi de cours METTRE PLUS DE TRAITEURS
 
 INSERT INTO Traiteur(idPersonne, idCours, statut)
 SELECT num,
@@ -620,3 +620,47 @@ VALUES (timestamp '2021-11-04 05:21:14', 5, 1),
        (timestamp '2017-08-21 23:56:42', 3, 10),
        (timestamp '2002-08-11 13:13:06', 4, 13),
        (timestamp '2022-01-08 21:55:35', 2, 15);
+
+-- Trigger vérifiant l'héritage disjoint de Traiteur et Administrateur (Une personne ne peut être traiteur ET administrateur)
+-- Check lors d'insertion dans la table Administrateur
+
+CREATE OR REPLACE FUNCTION function_check_administrateur()
+	RETURNS TRIGGER AS $$
+BEGIN
+	IF NEW.idPersonne IN (SELECT idPersonne FROM Traiteur) THEN
+		RAISE EXCEPTION 'No Admninistrateur invalide --> %', NEW.idPersonne
+		USING HINT = 'L''heritage sur Personne est disjoint. '
+		             'Une personne ne peut appartenir a plusieurs sous-types.';
+ELSE
+		RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_administrateur
+    BEFORE INSERT ON Administrateur
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_administrateur();
+
+-- Check lors de l'insertion dans la table Traiteur
+
+CREATE OR REPLACE FUNCTION function_check_traiteur()
+	RETURNS TRIGGER AS $$
+BEGIN
+	IF NEW.idPersonne IN (SELECT idPersonne FROM Administrateur) THEN
+		RAISE EXCEPTION 'No Traiteur invalide --> %', NEW.idPersonne
+		USING HINT = 'L''heritage sur Personne est disjoint. '
+		             'Une personne ne peut appartenir a plusieurs sous-types.';
+ELSE
+		RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_traiteur
+    BEFORE INSERT ON Traiteur
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_traiteur();
+
+INSERT INTO Traiteur VALUES(1); -- Test ajout id Administrateur à Traiteur
+INSERT INTO Administrateur VALUES(11); -- Test ajout id Traiteur à Administrateur
