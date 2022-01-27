@@ -69,36 +69,14 @@ function getTraitorCourses($id, $category) {
 
 function getTraitoMenusInfos($id) {
     $sql = <<<'SQL'
-       SELECT DISTINCT Produit.id, Produit.libellé, Produit.prix, Menu.nombrepersonnes
-        FROM Menu
-            INNER JOIN Produit
-                ON Menu.idproduit = Produit.id
-        WHERE Produit.idtraiteur = :id;
+        SELECT idtraiteur, id, libellé, prix, nombrepersonnes, array_to_json(plats) AS plats
+        FROM Menu_Description
+        WHERE idtraiteur = :id;
     SQL;
 
     global $connection;
     $sth = $connection->prepare($sql);
     $sth->bindParam('id', $id, PDO::PARAM_INT);
-
-    $sth->execute();
-    return $sth->fetchAll();
-}
-
-function getCoursesFromMenu($idMenu) {
-    $sql = <<<'SQL'
-        SELECT Produit.libellé, Plat.catégorie
-        FROM Produit
-            INNER JOIN Plat
-                ON Plat.idproduit = Produit.id
-            INNER JOIN Menu_Plat
-                ON Plat.idproduit = Menu_Plat.idplat
-        WHERE Menu_Plat.idmenu = :idMenu
-        ORDER BY catégorie ASC;
-    SQL;
-
-    global $connection;
-    $sth = $connection->prepare($sql);
-    $sth->bindParam('idMenu', $idMenu, PDO::PARAM_INT);
 
     $sth->execute();
     return $sth->fetchAll();

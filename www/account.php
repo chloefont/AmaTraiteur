@@ -5,7 +5,6 @@ session_start();
 if(isset($_GET['id'])){
     $id = $_GET["id"];
     $persoInfos = getPersoInfos($id);
-    echo "<pre>".print_r($persoInfos)."</pre><br />";
 }else{
     echo 'not set !!!!!!!!!';
 }
@@ -13,15 +12,12 @@ if(isset($_GET['id'])){
 if ($_SESSION["cart"] == null) {
     $_SESSION["cart"]= array();
 }
-print_r($_SESSION["cart"]);
 
 $entrees = getTraitorCourses($id, 'Entrée');
 $plats = getTraitorCourses($id, 'Plat');
 $desserts = getTraitorCourses($id, 'Dessert');
 
 $stylesCulinaire = getAllStyleCulinaire();
-
-print_r($plats);
 
 ?>
 <!DOCTYPE html>
