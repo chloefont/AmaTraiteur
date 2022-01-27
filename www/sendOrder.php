@@ -30,8 +30,6 @@ try {
 
 
     $arrayCounted = array_count_values($_SESSION["cart"]);
-
-    // print_r($arrayCounted);
         
     foreach($arrayCounted as $idP=>$nb) {
 
@@ -39,8 +37,6 @@ try {
             INSERT INTO produit_commande (idproduit, nocommande, quantité)
             VALUES(:idProduit, :noCommande , :nb);
         SQL;
-
-        echo $idP;
 
         global $connection;
         $sth = $connection->prepare($product);

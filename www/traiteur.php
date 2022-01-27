@@ -84,10 +84,14 @@ if ($_SESSION["cart"] == null) {
                                         <?php if ($row['description'] == null) : ?>
                                             <p class="card-text"><?= $row['prix'] . "CHF" ?></p>
                                         <?php else : ?>
-                                            <p class="card-text"><?= $row['description'] . ", " . $row['prix'] . "CHF" ?></p>
+                                            <p class="card-text"><?= $row['description'] ?></p>
+                                            <p class="card-text"><?= $row['prix'] . "CHF" ?></p>
+                                        <?php endif ?>
+                                        <?php if ($row['nom'] != null) : ?>
+                                            <p class="card-text"><?= "Style culinaire : ".$row['nom'] ?></p>
                                         <?php endif ?>
                                         <form method="post" action="<?= "addToCart.php?id=" . $id . "&idTraitor=" . $idTraitor ?>">
-                                            <input type="hidden" name="plat-id" value=<?= $row['id'] ?>>
+                                            <input type="hidden" name="plat-id" value=<?= $row['idproduit'] ?>>
                                             <input type="submit" class="btn btn-primary" value="Commander">
                                         </form>
                                     </div>
@@ -108,7 +112,7 @@ if ($_SESSION["cart"] == null) {
                                             <p class="card-text"><?= $row['description'] . ", " . $row['prix'] . "CHF" ?></p>
                                         <?php endif ?>
                                         <form method="post" action="<?= "addToCart.php?id=" . $id . "&idTraitor=" . $idTraitor ?>">
-                                            <input type="hidden" name="plat-id" value=<?= $row['id'] ?>>
+                                            <input type="hidden" name="plat-id" value=<?= $row['idproduit'] ?>>
                                             <input type="submit" class="btn btn-primary" value="Commander">
                                         </form>
                                     </div>
@@ -129,7 +133,7 @@ if ($_SESSION["cart"] == null) {
                                             <p class="card-text"><?= $row['description'] . ", " . $row['prix'] . "CHF" ?></p>
                                         <?php endif ?>
                                         <form method="post" action="<?= "addToCart.php?id=" . $id . "&idTraitor=" . $idTraitor ?>">
-                                            <input type="hidden" name="plat-id" value=<?= $row['id'] ?>>
+                                            <input type="hidden" name="plat-id" value=<?= $row['idproduit'] ?>>
                                             <input type="submit" class="btn btn-primary" value="Commander">
                                         </form>
                                     </div>

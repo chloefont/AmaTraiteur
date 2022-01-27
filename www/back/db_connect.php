@@ -92,6 +92,8 @@ function getTraitorCourses($id, $category) {
                 ON produit.id = plat.idproduit
             INNER JOIN traiteur
                 ON traiteur.idpersonne = produit.idtraiteur
+            LEFT JOIN styleculinaire
+                ON styleculinaire.id = plat.idstyleculinaire
         WHERE traiteur.idpersonne = :id AND plat.catégorie = :category;
     SQL;
 
