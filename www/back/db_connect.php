@@ -220,7 +220,29 @@ function getOldOrders($id) {
 }
 
 function getTraitorOrders($id) {
-    
+    $sql = <<<'SQL'
+        SELECT commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement, personne.nom, personne.prénom, 
+            SUM(produit.prix * produit_commande.quantité) AS "Prix commande", COUNT(produit)
+        FROM commande
+            INNER JOIN produit_commande
+                ON commande.nocommande = produit_commande.nocommande
+            INNER JOIN produit
+                ON produit_commande.idproduit = produit.id
+            INNER JOIN traiteur
+                ON traiteur.idpersonne = produit.idtraiteur
+            INNER JOIN personne
+                ON personne.id = commande.idpersonne
+        WHERE traiteur.idpersonne = :id
+        GROUP BY commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement, personne.nom, personne.prénom
+        ORDER BY commande.dateheure DESC;
+    SQL;
+
+    global $connection;
+    $sth = $connection->prepare($sql);
+    $sth->bindParam('id', $id, PDO::PARAM_INT);
+
+    $sth->execute();
+    return $sth->fetchAll();
 }
 
 function getAllStyleCulinaire() {
