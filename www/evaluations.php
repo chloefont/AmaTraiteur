@@ -43,7 +43,7 @@ $evaluations = getTraitorEvaluations($idTraitor, $filter);
         <!-- Navigation-->
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href=<?="index.php?id=".$id?>>AmaTraiteur</a>
+                <a class="navbar-brand" href=<?="home.php?id=".$id?>>AmaTraiteur</a>
                 <a class="btn btn-primary" href=<?="account.php?id=".$id?>>Mon compte</a>
             </div>
         </nav>
