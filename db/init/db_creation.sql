@@ -273,7 +273,7 @@ ON UPDATE CASCADE;
 DROP VIEW IF EXISTS Menu_Description CASCADE;
 CREATE VIEW Menu_Description
 AS
-SELECT P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes, 
+SELECT P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes,
 	array_agg(P_Plat.libellé ORDER BY Plat.catégorie) AS plats
 FROM Menu
 	INNER JOIN Produit AS P_Menu
@@ -286,11 +286,93 @@ FROM Menu
 		ON P_Plat.id = Plat.idproduit
 GROUP BY P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes;
 
+-- Trigger vérifiant l'héritage disjoint de Traiteur et Administrateur (Une personne ne peut être traiteur ET administrateur)
+
+-- Check lors d'insertion dans la table Administrateur
+
+CREATE OR REPLACE FUNCTION function_check_administrateur()
+	RETURNS TRIGGER AS $$
+BEGIN
+	IF NEW.idPersonne IN (SELECT idPersonne FROM Traiteur) THEN
+		RAISE EXCEPTION 'No Admninistrateur invalide --> %', NEW.idPersonne
+		USING HINT = 'L''heritage sur Personne est disjoint. '
+		             'Une personne ne peut appartenir a plusieurs sous-types.';
+ELSE
+		RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_administrateur
+    BEFORE INSERT ON Administrateur
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_administrateur();
+
+-- Check lors de l'insertion dans la table Traiteur
+
+CREATE OR REPLACE FUNCTION function_check_traiteur()
+	RETURNS TRIGGER AS $$
+BEGIN
+	IF NEW.idPersonne IN (SELECT idPersonne FROM Administrateur) THEN
+		RAISE EXCEPTION 'No Traiteur invalide --> %', NEW.idPersonne
+		USING HINT = 'L''heritage sur Personne est disjoint. '
+		             'Une personne ne peut appartenir a plusieurs sous-types.';
+ELSE
+		RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_traiteur
+    BEFORE INSERT ON Traiteur
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_traiteur();
+
+-- Trigger vérifiant qu'un menu soit composé de plats venant du même traiteur
+
+CREATE OR REPLACE FUNCTION function_check_menu()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idPlat) NOT IN
+    (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idMenu) THEN
+            RAISE EXCEPTION 'Plat % invalide pour Menu %', NEW.idPlat, NEW.idMenu
+            USING HINT = 'Un traiteur ne peut ajouter des plats à son menu que si ce sont ses propres plats';
+ELSE
+             RETURN NEW;
+END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_menu
+    BEFORE INSERT ON Menu_Plat
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_menu();
+
+-- Trigger empechant les traiteur de se commander des plats à eux-même
+
+CREATE OR REPLACE FUNCTION function_check_auto_commande()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT Produit.idTraiteur FROM Produit WHERE Produit.id = NEW.idProduit) IN
+       (SELECT Commande.idPersonne FROM Commande WHERE Commande.noCommande = NEW.noCommande) THEN
+            RAISE EXCEPTION 'Produit % invalide pour commande no%', NEW.idProduit, NEW.noCommande
+            USING HINT = 'Un traiteur ne peut pas se commander des plats à lui-même';
+    ELSE
+            RETURN NEW;
+    END IF;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_auto_commande
+    BEFORE INSERT ON Produit_Commande
+    FOR EACH ROW
+    EXECUTE FUNCTION function_check_auto_commande();
+
 --- Peuplement de la base de données
 
 --- Personne
 INSERT INTO Personne (nom, prénom, adresse, noTelephone, email)
-VALUES ('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNeym@gmail.com'),
+VALUES('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNeym@gmail.com'),
       ('Debonlyvre', 'Julie', 'Route de Jésuy-Père-Du 31', '031 532 2135', 'LaJulie@hotmail.com'),
       ('Peausy-Scion', 'Paul', 'Chemin du Preaujay-Bédéhère 7', '021 423 1245', 'jaimelesvoiture@bluewin.ch'),
       ('Aideufoi', 'Marie', 'Avenue des Cordet 92', '021 422 2314', 'asdfmail@mail.com'),
@@ -320,11 +402,11 @@ VALUES ('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNe
       ('Colin', 'Nathan', 'Avenue Duseine 43', '083 209 3285', 'nathan.colin@gmail.com'),
       ('Ploira', 'Dylan', 'Route de Moralise 23', '094 235 9853', 'dylan.ploira@mail.com'),
       ('Andry', 'Alex', 'Chemin Alexandra 91', '093 439 3249', 'claude.francois@caramail.com'),
-       ('Calc', 'Sandra', 'Route de Poudereux 31', '924 321 3255', 'sandra.callc@gmail.com'),
-       ('Martinez', 'Martin', 'Chemin Vuchardaz 23', '034 321 9843', 'martin.ez@hotmail.com'),
-       ('Umene', 'Cixi', 'Avenue Ducheumain 10', '043 329 8140', 'cixi.umene@bluewin.ch'),
-        ('Grajet', 'Patrick', 'Avenu Minet 66', '034 324 9841', 'pat.g@gmail.com'),
-       ('Boquet', 'Cybille', 'Route Dejouey 4', '043 075 9832', 'bilboquet@gmail.com');
+      ('Calc', 'Sandra', 'Route de Poudereux 31', '924 321 3255', 'sandra.callc@gmail.com'),
+      ('Martinez', 'Martin', 'Chemin Vuchardaz 23', '034 321 9843', 'martin.ez@hotmail.com'),
+      ('Umene', 'Cixi', 'Avenue Ducheumain 10', '043 329 8140', 'cixi.umene@bluewin.ch'),
+      ('Grajet', 'Patrick', 'Avenu Minet 66', '034 324 9841', 'pat.g@gmail.com'),
+      ('Boquet', 'Cybille', 'Route Dejouey 4', '043 075 9832', 'bilboquet@gmail.com');
 
 -- Administrateur -- Les 10 premières personnes sont Administrateurs
 INSERT INTO Administrateur(idPersonne)
@@ -337,7 +419,7 @@ SELECT NOW() + (random() * (NOW()+'100 days' - NOW())) + '20 days',
        num
 FROM generate_series(1, 5) AS num;
 
--- Traiteur -- Les personnes 11 à 20 sont des traiteurs et les 5 derniers n'ont pas suivi de cours METTRE PLUS DE TRAITEURS
+-- Traiteur -- Les personnes 11 à 30 sont des traiteurs et les 5 derniers n'ont pas suivi de cours METTRE PLUS DE TRAITEURS
 
 INSERT INTO Traiteur(idPersonne, idCours, statut)
 SELECT num,
@@ -425,6 +507,8 @@ VALUES (12.75, 'Nouilles crues aux petits pois', 11), -- Le traiteur (id = 11) n
        (11, 'Dessert surprise', 25),
        (27.75, 'Menu surprise', 25), -- 57
 
+       -- Produits associés aux traiteurs n'ayant pas suivi de cours
+
        (10, 'Anon', 26),
        (100, 'Anon', 26),
        (1, 'Anon', 26),
@@ -446,7 +530,7 @@ VALUES (12.75, 'Nouilles crues aux petits pois', 11), -- Le traiteur (id = 11) n
        (6, 'Anon', 30),
        (130, 'Anon', 30);
 
--- Produits associés aux traiteurs n'ayant pas suivi de cours
+
 
 -- Style Culinaire
 
@@ -629,7 +713,7 @@ VALUES (4, 1, 2),
 
 INSERT INTO Evaluation(dateevaluation, note, commentaire, nocommande)
 VALUES (timestamp '2021-11-04 05:21:14', 5, 'Super traiteur, je recommande.', 1),
-       (timestamp '2019-04-24 11:48:10', 1, 'La pire expérience de ma vie. Le patron a refusé de reprendre mon plat car les frites étaient froides. J ai hésité à 
+       (timestamp '2019-04-24 11:48:10', 1, 'La pire expérience de ma vie. Le patron a refusé de reprendre mon plat car les frites étaient froides. J ai hésité à
 		appeler la police quand il a menacé de m étrangler avec des saucissons. Je déconseille !', 3),
        (timestamp '2016-06-01 16:20:46', 3, 'Bon mais pas ouff', 5),
        (timestamp '2022-01-05 10:30:02', 4, 'MIAM !', 7),
@@ -637,3 +721,15 @@ VALUES (timestamp '2021-11-04 05:21:14', 5, 'Super traiteur, je recommande.', 1)
        (timestamp '2017-08-21 23:56:42', 3, 'Bien mais je connais un bon italien dans ma rue. Il s appelle Senza una donna non c è zucchero.', 10),
        (timestamp '2002-08-11 13:13:06', 4, 'SUPER ! MEILLEUR RESTO DE MA VIE. Le serveur était charmant, je veux bien son 07.', 13),
        (timestamp '2022-01-08 21:55:35', 2, 'De la nourriture pour chat...', 15);
+
+-- Insertion de Test pour les triggers
+
+INSERT INTO Commande(dateHeure, adresseLivraison, statut, datePaiement, moyenPaiement, idPersonne) VALUES(timestamp '2021-11-01 19:27:02', 'Route de la Patience 404', 'En cours de livraison'::Commande_statut, -- Commande du traiteur 1 (idPersonne = 11) à lui-même
+                            timestamp '2021-11-01 19:27:05', 'twint'::Commande_moyenPaiement, 11);
+INSERT INTO Produit_Commande VALUES(1, 16, 1);
+
+INSERT INTO Menu_Plat VALUES(14, 9); -- Ne devrait pas poser de problème
+INSERT INTO Menu_Plat VALUES(14, 52); -- Devrait lever une exception
+
+INSERT INTO Traiteur VALUES(1); -- Test ajout id Administrateur à Traiteur
+INSERT INTO Administrateur VALUES(11); -- Test ajout id Traiteur à Administrateur
