@@ -1,15 +1,24 @@
 <?php
     require_once("back/db_connect.php");
-    if (!isset($_GET["id"])) {
-        $id = 5;
-    } else {
-        $id = $_GET["id"];
-    }
-    
     session_start();
+    
+    if(!isset($_GET['id'])){
+        header("Location: index.php", true, 301);
+    }
+
     if ($_SESSION["cart"] == null) {
         $_SESSION["cart"]= array();
     }
+
+    $id = $_GET["id"];
+    $traitors;
+    
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $traitors = traitorSearchWithWord($_POST['search']);
+    } else {
+        $traitors = getTenBestRankedTraitors();
+    }
+
 
 ?>
 <!DOCTYPE html>
@@ -46,28 +55,13 @@
                         <div class="text-center text-white">
                             <!-- Page heading-->
                             <h1 class="mb-5">Recherchez un traiteur</h1>
-                            <form class="form-subscribe" id="contactForm" data-sb-form-api-token="API_TOKEN">
-                                <!-- Email address input-->
+                            <form method="post" action=<?= "home.php?id=".$id ?>>
                                 <div class="row">
                                     <div class="col">
-                                        <input class="form-control form-control-lg" id="emailAddress" type="email" placeholder="Barre de recherche" data-sb-validations="required,email" />
-                                        <div class="invalid-feedback text-white" data-sb-feedback="emailAddress:required">Email Address is required.</div>
-                                        <div class="invalid-feedback text-white" data-sb-feedback="emailAddress:email">Email Address Email is not valid.</div>
+                                        <input class="form-control form-control-lg" name="search" type="name" maxlength="50" placeholder="Barre de recherche"/>
                                     </div>
-                                    <div class="col-auto"><button class="btn btn-primary btn-lg disabled" id="submitButton" type="submit">Rechercher</button></div>
+                                    <div class="col-auto"><button class="btn btn-primary btn-lg" id="submitButton" type="submit">Rechercher</button></div>
                                 </div>
-                                <div class="d-none" id="submitSuccessMessage">
-                                    <div class="text-center mb-3">
-                                        <div class="fw-bolder">Form submission successful!</div>
-                                        <p>To activate this form, sign up at</p>
-                                        <a class="text-white" href="https://startbootstrap.com/solution/contact-forms">https://startbootstrap.com/solution/contact-forms</a>
-                                    </div>
-                                </div>
-                                <!-- Submit error message-->
-                                <!---->
-                                <!-- This is what your users will see when there is-->
-                                <!-- an error submitting the form-->
-                                <div class="d-none" id="submitErrorMessage"><div class="text-center text-danger mb-3">Error sending message!</div></div>
                             </form>
                         </div>
                     </div>
@@ -79,7 +73,7 @@
         <section class="showcase traiteur-list" style="padding-top: 50px;">
             <div class="container-fluid p-0">
             <h3 class="center-text">10 meilleurs traiteurs</h3>
-                <?php foreach(getTenBestRankedTraitors() as $row): ?>
+                <?php foreach($traitors as $row): ?>
                 <div class="row g-0">
                     <div class="card traiteur-card" style="width: 60rem;">
                         <div class="card-body">

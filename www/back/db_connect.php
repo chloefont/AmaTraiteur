@@ -37,6 +37,43 @@ function getTenBestRankedTraitors() {
     return $sth->fetchAll();
 }
 
+function traitorSearchWithWord($word) {
+    $sql = <<<'SQL'
+        SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email,
+        CASE WHEN AVG(note) IS NULL THEN 0 ELSE round(AVG(note), 2) END AS moyenne, COUNT(evaluation.id) AS nbEvaluations
+        FROM traiteur
+            INNER JOIN personne
+                ON traiteur.idpersonne = personne.id
+            INNER JOIN cours
+                ON traiteur.idcours = cours.id
+            INNER JOIN produit
+                ON produit.idtraiteur = traiteur.idpersonne
+            INNER JOIN produit_commande
+                ON produit.id = produit_commande.idproduit
+            INNER JOIN plat
+                ON produit.id = plat.idproduit
+            LEFT JOIN styleculinaire
+                ON plat.idstyleculinaire = styleculinaire.id
+            INNER JOIN commande
+                ON produit_commande.nocommande = commande.nocommande
+            INNER JOIN evaluation
+                ON commande.nocommande = evaluation.nocommande
+        WHERE traiteur.statut = true AND (personne.nom = :mot OR personne.prénom ILIKE :mot
+                                            OR personne.adresse ILIKE :mot OR produit.libellé ILIKE :mot
+                                            OR styleculinaire.nom ILIKE :mot)
+        GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email
+        ORDER BY moyenne DESC, nbEvaluations DESC;
+    SQL;
+
+    global $connection;
+    $sth = $connection->prepare($sql);
+    $str = '%'.$word.'%';
+    $sth->bindParam('mot',$str , PDO::PARAM_STR);
+
+    $sth->execute();
+    return $sth->fetchAll();
+}
+
 function getTraitorInfo($id) {
     global $connection;
     return $connection->query('
@@ -272,3 +309,4 @@ function idForEmail($email) {
     $sth->execute();
     return $sth->fetchAll();
 }
+

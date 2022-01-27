@@ -6,8 +6,6 @@ if (!isset($_GET['id'])) {
     header("Location: index.php", true, 301);
 }
 
-// print_r($_SESSION["cart"]);
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     array_push($_SESSION["cart"], $_POST['plat-id']);
 }
