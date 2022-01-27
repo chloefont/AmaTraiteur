@@ -37,10 +37,10 @@ function getTenBestRankedTraitors() {
     return $sth->fetchAll();
 }
 
-function traitorSearchWithWord($word) {
+function getTenBestRankedTraitorsWithFavStyle($id) {
     $sql = <<<'SQL'
         SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email,
-        CASE WHEN AVG(note) IS NULL THEN 0 ELSE round(AVG(note), 2) END AS moyenne, COUNT(evaluation.id) AS nbEvaluations
+             round(AVG(note), 2) AS moyenne
         FROM traiteur
             INNER JOIN personne
                 ON traiteur.idpersonne = personne.id
@@ -50,19 +50,68 @@ function traitorSearchWithWord($word) {
                 ON produit.idtraiteur = traiteur.idpersonne
             INNER JOIN produit_commande
                 ON produit.id = produit_commande.idproduit
-            INNER JOIN plat
-                ON produit.id = plat.idproduit
-            LEFT JOIN styleculinaire
-                ON plat.idstyleculinaire = styleculinaire.id
             INNER JOIN commande
                 ON produit_commande.nocommande = commande.nocommande
             INNER JOIN evaluation
                 ON commande.nocommande = evaluation.nocommande
-        WHERE traiteur.statut = true AND (personne.nom = :mot OR personne.prénom ILIKE :mot
+            INNER JOIN plat
+                ON produit.id = plat.idproduit
+            INNER jOIN styleculinaire
+                ON styleculinaire.id = plat.idstyleculinaire
+        WHERE traiteur.statut = TRUE AND styleculinaire.id IN (
+            SELECT DISTINCT styleculinaire.id
+            FROM styleculinaire
+                    INNER JOIN plat
+                                ON styleculinaire.id = plat.idstyleculinaire
+                    INNER JOIN produit
+                                ON produit.id = plat.idproduit
+                    INNER JOIN produit_commande
+                                ON produit.id = produit_commande.idproduit
+                    INNER JOIN commande
+                                ON produit_commande.nocommande = commande.nocommande
+                    INNER JOIN personne
+                                ON commande.idpersonne = personne.id
+            WHERE personne.id = :id
+        )
+        GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email
+        ORDER BY moyenne DESC
+        LIMIT 10;
+    SQL;
+
+    global $connection;
+    $sth = $connection->prepare($sql);
+    $sth->bindParam('id',$id , PDO::PARAM_INT);
+
+    $sth->execute();
+    return $sth->fetchAll();
+}
+
+function traitorSearchWithWord($word) {
+    $sql = <<<'SQL'
+        SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email,
+         round(AVG(note), 2) AS moyenne
+        FROM traiteur
+            INNER JOIN personne
+                ON traiteur.idpersonne = personne.id
+            INNER JOIN cours
+                ON traiteur.idcours = cours.id
+            LEFT JOIN produit
+                ON produit.idtraiteur = traiteur.idpersonne
+            LEFT JOIN produit_commande
+                ON produit.id = produit_commande.idproduit
+            LEFT JOIN plat
+                ON produit.id = plat.idproduit
+            LEFT JOIN styleculinaire
+                ON plat.idstyleculinaire = styleculinaire.id
+            LEFT JOIN commande
+                ON produit_commande.nocommande = commande.nocommande
+            LEFT JOIN evaluation
+                ON commande.nocommande = evaluation.nocommande
+        WHERE traiteur.statut = true AND (personne.nom ILIKE :mot OR personne.prénom ILIKE :mot
                                             OR personne.adresse ILIKE :mot OR produit.libellé ILIKE :mot
                                             OR styleculinaire.nom ILIKE :mot)
         GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email
-        ORDER BY moyenne DESC, nbEvaluations DESC;
+        ORDER BY moyenne DESC;
     SQL;
 
     global $connection;
