@@ -36,15 +36,37 @@
 
             
                 <!-- <div class="card traiteur-card" style="width: 80%;"> -->
-                    <form method="post" action="<?= "connect.php" ?>">
-                        <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="floatingInput" name="email">
-                            <label for="floatingInput">Adresse email</label>
+                    <form method="post" action="<?= "addMember.php" ?>">
+                        <div class="form-floating">
+                            <select class="form-select" name="type" id="floatingSelect" aria-label="Floating label select example">
+                                <option selected value='client'>Client</option>
+                                <option value="traiteur">Traiteur</option>
+                            </select>
+                            <label for="floatingSelect">Vous vous inscrivez en tant que</label>
                         </div>
-                        <input type="submit" class="btn btn-primary" style="margin-top: 0.5rem;" value="Se connecter">
-                        <a class="btn btn-outline-primary" style="margin-top: 0.5rem;" href=<?="signup.php"?>>S'inscrire</a>
+                        <div class="form-floating" style="padding-top: 0.5rem;">
+                            <input type="name" class="form-control" name="nom" id="floatingPassword" required>
+                            <label for="floatingPassword">Nom</label>
+                        </div>
+                        <div class="form-floating" style="padding-top: 0.5rem;">
+                            <input type="name" class="form-control" name="prénom" id="floatingPassword" required>
+                            <label for="floatingPassword">Prénom</label>
+                        </div>
+                        <div class="form-floating" style="padding-top: 0.5rem;">
+                            <input type="name" class="form-control" name="email" id="floatingPassword" required>
+                            <label for="floatingPassword">Adresse mail</label>
+                        </div>
+                        <div class="form-floating" style="padding-top: 0.5rem;">
+                            <input type="name" class="form-control"  name="adresse" id="floatingPassword" required>
+                            <label for="floatingPassword">Adresse</label>
+                        </div>
+                        <div class="form-floating" style="padding-top: 0.5rem;">
+                            <input type="name" class="form-control"  name="notel" id="floatingPassword" required>
+                            <label for="floatingPassword">No téléphone</label>
+                        </div>
+                        
+                        <input type="submit" class="btn btn-primary" style="margin-top: 0.5rem;" value="S'inscrire">
                     </form>
-                    
                 <!-- </div> -->
             </div>
     

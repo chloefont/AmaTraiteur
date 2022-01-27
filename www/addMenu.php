@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isTraitor($_GET['id'])) {
 
         $connection->commit();
 
-    }  catch (PDOException  $e) {;
+    }  catch (PDOException  $e) {
         $connection->rollBack();
     } finally {
         header("Location: account.php?id=".$_GET['id'], true, 301);

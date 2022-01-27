@@ -16,7 +16,7 @@ CREATE TABLE Personne (
     prénom VARCHAR(25) NOT NULL,
     adresse VARCHAR(50) NOT NULL,
     noTelephone VARCHAR(15) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    email VARCHAR(50) UNIQUE NOT NULL,
     CONSTRAINT PK_Personne PRIMARY KEY (id)
 );
 

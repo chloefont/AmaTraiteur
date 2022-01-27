@@ -45,10 +45,8 @@ FROM traiteur
         ON produit_commande.nocommande = commande.nocommande
     INNER JOIN evaluation
         ON commande.nocommande = evaluation.nocommande
-    INNER JOIN menu
-        ON produit.id = menu.idproduit
     INNER JOIN plat
-        ON produit.id = plat.idproduit OR menu.idproduit = plat.idproduit
+        ON produit.id = plat.idproduit
     INNER jOIN styleculinaire
         ON styleculinaire.id = plat.idstyleculinaire
 WHERE traiteur.statut = TRUE AND styleculinaire.id IN (
@@ -64,7 +62,7 @@ WHERE traiteur.statut = TRUE AND styleculinaire.id IN (
                         ON produit_commande.nocommande = commande.nocommande
              INNER JOIN personne
                         ON commande.idpersonne = personne.id
-    WHERE personne.id = 1 -- à changer
+    WHERE personne.id = 14
 )
 GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse
 ORDER BY moyenne DESC
