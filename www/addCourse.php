@@ -2,6 +2,10 @@
 require_once("back/db_connect.php");
 session_start();
 
+if (!isset($_GET['id'])) {
+    header("Location: index.php", true, 301);
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isTraitor($_GET['id'])) {
     $product = <<<'SQL'
         INSERT INTO produit (prix, libellé, idtraiteur)

@@ -1,5 +1,10 @@
 <?php
 require_once("back/db_connect.php");
+
+if (!isset($_GET['id'])) {
+    header("Location: index.php", true, 301);
+}
+
 $idTraitor = $_GET["idTraitor"];
 $id = $_GET["id"];
 

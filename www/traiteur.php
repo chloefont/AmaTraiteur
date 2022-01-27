@@ -1,6 +1,10 @@
 <?php
 require_once("back/db_connect.php");
 $idTraitor = $_GET["idTraitor"];
+
+if (!isset($_GET['id'])) {
+    header("Location: index.php", true, 301);
+}
 $id = $_GET["id"];
 
 $traitorInfos = getPersoInfos($idTraitor);
@@ -65,7 +69,7 @@ if ($_SESSION["cart"] == null) {
             </div>
     </header>
 
-    <div class="container">
+    <div class="container" style="padding-top: 50px;">
         <div class="row align-items-start">
             <div class="col">
                 <section class="showcase traiteur-list">

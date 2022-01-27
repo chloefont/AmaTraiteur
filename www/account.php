@@ -1,13 +1,13 @@
 <?php
 require_once("back/db_connect.php");
-
 session_start();
-if(isset($_GET['id'])){
-    $id = $_GET["id"];
-    $persoInfos = getPersoInfos($id);
-}else{
-    echo 'not set !!!!!!!!!';
+
+if(!isset($_GET['id'])){
+    header("Location: index.php", true, 301);
 }
+
+$id = $_GET["id"];
+$persoInfos = getPersoInfos($id);
 
 if ($_SESSION["cart"] == null) {
     $_SESSION["cart"]= array();
@@ -70,7 +70,7 @@ $stylesCulinaire = getAllStyleCulinaire();
                 <div class="col">
 
                     <!-- Client -->
-                    <section class="showcase traiteur-list">
+                    <section class="showcase traiteur-list" style="padding-top: 50px;">
                         <div class="container-fluid p-0">
                             <h3 class="center-text">Historique des commandes</h3>
 
@@ -133,39 +133,11 @@ $stylesCulinaire = getAllStyleCulinaire();
                 <section class="showcase traiteur-list">
                         <div class="container-fluid p-0">
 
-                        <!-- Client -->
-                        <?php if (!isTraitor($id)): ?>
-                            <h3 class="center-text">Commande en cours</h3>
-                            <?php if(count($_SESSION["cart"]) != 0): ?>
-                                <?php foreach($_SESSION["cart"] as $idP): ?>
-                                <?php foreach(getProduct($idP) as $product): ?>
-                                <div class="row g-0">
-                                    <div class="card traiteur-card" style="width: 80%;">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?= $product['libellé'] ?></h5>
-                                            <p class="card-text"><?= $product['prix'] ?></p>
-                                            <form method="post" action="<?= "removeFromCart.php?id=".$id ?>">
-                                                <input type="hidden" name="plat-id" value=<?= $product['id'] ?>>
-                                                <input type="submit" class="btn btn-primary" value="Supprimer">
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php endforeach; ?>
-                                <?php endforeach; ?>
-                            
-                                <form method="post" action="<?= "sendOrder.php?id=".$id ?>">
-                                    <input type="hidden" name="plat-id" value=<?= $id ?>>
-                                    <input type="submit" class="btn btn-primary" value="Passer la commande">
-                                </form>
-                            <?php else: ?>
-                                <p class="center-text">Pas de commande en cours</p>
-                            <?php endif ?>
 
                         <!-- Traiteur -->
-                        <?php else: ?>
+                        <?php if (isTraitor($id)): ?>
 
-                            <div class="row g-0">
+                            <div class="row g-0" style="padding-top: 50px;">
                             <h3 class="center-text">Ajouter un plat</h3>
 
                             
@@ -218,7 +190,7 @@ $stylesCulinaire = getAllStyleCulinaire();
                             </div>
 
 
-                            <div class="row g-0">
+                            <div class="row g-0" style="padding-top: 50px;">
                             <h3 class="center-text">Ajouter un menu</h3>
 
                             
@@ -294,8 +266,41 @@ $stylesCulinaire = getAllStyleCulinaire();
                                     </form>
                                 <!-- </div> -->
                             </div>
-                        
                         <?php endif ?>
+
+                            <!-- Client -->
+                        <div style="padding-top: 50px;">
+                            <h3 class="center-text">Commande en cours</h3>
+                            <?php if(count($_SESSION["cart"]) != 0): ?>
+                                <?php foreach($_SESSION["cart"] as $idP): ?>
+                                <?php foreach(getProduct($idP) as $product): ?>
+                                <div class="row g-0">
+                                    <div class="card traiteur-card" style="width: 80%;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= $product['libellé'] ?></h5>
+                                            <p class="card-text"><?= $product['prix'] ?></p>
+                                            <form method="post" action="<?= "removeFromCart.php?id=".$id ?>">
+                                                <input type="hidden" name="plat-id" value=<?= $product['id'] ?>>
+                                                <input type="submit" class="btn btn-primary" value="Supprimer">
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            
+                                <form method="post" action="<?= "sendOrder.php?id=".$id ?>">
+                                    <input type="hidden" name="plat-id" value=<?= $id ?>>
+                                    <input type="submit" class="btn btn-primary" value="Passer la commande">
+                                </form>
+                            <?php else: ?>
+                                <p class="center-text">Pas de commande en cours</p>
+                            <?php endif ?>
+
+                        </div>
+                        
+                        
+                        
                         </div>
                     </section>
                 </div>

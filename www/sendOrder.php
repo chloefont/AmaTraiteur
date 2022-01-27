@@ -2,6 +2,10 @@
 require_once("back/db_connect.php");
 session_start();
 
+if (!isset($_GET['id'])) {
+    header("Location: index.php", true, 301);
+}
+
 $order = <<<'SQL'
     INSERT INTO commande (dateheure, adresselivraison, statut, datepaiement, moyenpaiement, idpersonne)
         VALUES (NOW(), :adresse, 'Non validé', NOW(), 'carte bancaire', :id)

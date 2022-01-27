@@ -257,3 +257,18 @@ function getAllStyleCulinaire() {
     $sth->execute();
     return $sth->fetchAll();
 }
+
+function idForEmail($email) {
+    $sql = <<<'SQL'
+        SELECT id
+        FROM personne
+        WHERE email = :mail;
+    SQL;
+
+    global $connection;
+    $sth = $connection->prepare($sql);
+    $sth->bindParam('mail', $email, PDO::PARAM_STR);
+
+    $sth->execute();
+    return $sth->fetchAll();
+}
