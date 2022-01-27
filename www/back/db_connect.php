@@ -9,7 +9,8 @@ $users = $connection->query('SELECT * FROM personne')->fetchAll(PDO::FETCH_ASSOC
 // TODO réussir à mettre null après (quand trié)
 function getTenBestRankedTraitors() {
     $sql = <<<'SQL'
-        SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, round(AVG(note), 2) AS moyenne
+        SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email,
+                CASE WHEN AVG(note) IS NULL THEN 0 ELSE round(AVG(note), 2) END AS moyenne, COUNT(evaluation.id) AS nbEvaluations
         FROM traiteur
             INNER JOIN personne
                 ON traiteur.idpersonne = personne.id
@@ -24,8 +25,8 @@ function getTenBestRankedTraitors() {
             LEFT JOIN evaluation
                 ON commande.nocommande = evaluation.nocommande
         WHERE traiteur.statut = TRUE
-        GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone
-        ORDER BY moyenne DESC
+        GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email
+        ORDER BY moyenne DESC, nbEvaluations DESC
         LIMIT 10;
     SQL;
 

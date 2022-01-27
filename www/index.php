@@ -84,7 +84,7 @@
                     <div class="card traiteur-card" style="width: 60rem;">
                         <div class="card-body">
                             <h5 class="card-title"><?= $row['prénom']." ".$row['nom'] ?></h5>
-                            <p class="card-text"><?= $row['adresse'].", ".$row['notelephone'].", note : ".$row['notelephone']."/5" ?></p>
+                            <p class="card-text"><?= $row['adresse'].", ".$row['notelephone'].", note : ".$row['moyenne']."/5" ?></p>
                             <?= "<a href='traiteur.php?id=".$id."&idTraitor=".$row['idpersonne']."' class='btn btn-primary'>Voir la page</a>";?>
                         </div>
                     </div>
