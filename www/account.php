@@ -68,6 +68,9 @@ $stylesCulinaire = getAllStyleCulinaire();
         <div class="container">
             <div class="row align-items-start">
                 <div class="col">
+
+                    <!-- Client -->
+                    <?php if (!isTraitor($id)): ?>
                     <section class="showcase traiteur-list">
                         <div class="container-fluid p-0">
                             <h3 class="center-text">Historique des commandes</h3>
@@ -84,6 +87,26 @@ $stylesCulinaire = getAllStyleCulinaire();
                             <?php endforeach; ?>
                         </div>
                     </section>
+
+                    <!-- Traiteur -->
+                    <?php else: ?>
+                    <section class="showcase traiteur-list">
+                        <div class="container-fluid p-0">
+                            <h3 class="center-text">Commandes des clients</h3>
+
+                            <?php foreach(getOldOrders($_GET['id']) as $order): ?>
+                                <div class="row g-0">
+                                    <div class="card traiteur-card" style="width: 80%;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php $traitor = getPersoInfos($order['idpersonne'])[0]; echo $traitor['prénom']." ".$traitor['nom'] ?></h5>
+                                            <p class="card-text"><?= $order['dateCommande'].", ".$order['Prix commande']."CHF" ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+                    <?php endif ?>
                 </div>
 
 

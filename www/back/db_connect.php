@@ -129,7 +129,7 @@ function getPersoInfos($id) {
 
 function getGradetraitor($id) {
     $sql = <<<'SQL'
-        SELECT round(AVG(note), 2) AS moyenne
+        SELECT CASE WHEN AVG(note) IS NULL THEN 0 ELSE round(AVG(note), 2) END AS moyenne
         FROM Evaluation
             INNER JOIN Commande
                 ON Evaluation.nocommande = Commande.nocommande
@@ -217,6 +217,10 @@ function getOldOrders($id) {
 
     $sth->execute();
     return $sth->fetchAll();
+}
+
+function getTraitorOrders($id) {
+    
 }
 
 function getAllStyleCulinaire() {
