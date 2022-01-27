@@ -31,7 +31,7 @@ try {
 
     $arrayCounted = array_count_values($_SESSION["cart"]);
 
-    print_r($arrayCounted);
+    // print_r($arrayCounted);
         
     foreach($arrayCounted as $idP=>$nb) {
 

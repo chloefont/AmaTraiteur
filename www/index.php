@@ -1,15 +1,5 @@
 <?php
     require_once("back/db_connect.php");
-    if (!isset($_GET["id"])) {
-        $id = 5;
-    } else {
-        $id = $_GET["id"];
-    }
-    
-    session_start();
-    if ($_SESSION["cart"] == null) {
-        $_SESSION["cart"]= array();
-    }
 
 ?>
 <!DOCTYPE html>
@@ -34,7 +24,7 @@
         <!-- Navigation-->
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href=<?="index.php?id=".$id?>>AmaTraiteur</a>
+                <a class="navbar-brand" href=<?="index.php"?>>AmaTraiteur</a>
             </div>
         </nav>
         <!-- Masthead-->
