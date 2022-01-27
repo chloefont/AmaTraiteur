@@ -68,11 +68,18 @@ $stylesCulinaire = getAllStyleCulinaire();
         <div class="container">
             <div class="row align-items-start">
                 <div class="col">
+
+                    <!-- Client -->
                     <section class="showcase traiteur-list">
                         <div class="container-fluid p-0">
                             <h3 class="center-text">Historique des commandes</h3>
 
+                            
+                            <?php 
+                            $orders = getOldOrders($id);
+                            if (count($orders) != 0): ?>
                             <?php foreach(getOldOrders($_GET['id']) as $order): ?>
+
                                 <div class="row g-0">
                                     <div class="card traiteur-card" style="width: 80%;">
                                         <div class="card-body">
@@ -82,8 +89,43 @@ $stylesCulinaire = getAllStyleCulinaire();
                                     </div>
                                 </div>
                             <?php endforeach; ?>
+                                
+                            <?php else: ?>
+                                <p class="center-text">Vous n'avez pas d'historique de commandes.</p>
+                            <?php endif ?>
+
                         </div>
                     </section>
+
+                    <!-- Traiteur -->
+                    <?php if (isTraitor($id)): ?>
+
+                    <section class="showcase traiteur-list" style="padding-top: 50px;">
+
+                        <div class="container-fluid p-0">
+                            <h3 class="center-text">Commandes des clients</h3>
+
+                            <?php 
+                            $orders = getTraitorOrders($id);
+                            if (count($orders) != 0): ?>
+                            <?php foreach($orders as $order): ?>
+                                <div class="row g-0">
+                                    <div class="card traiteur-card" style="width: 80%;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= $order['prénom']." ".$order['nom'] ?></h5>
+                                            <p class="card-text"><?= $order['dateheure'].", ".$order['Prix commande']."CHF" ?></p>
+                                            <p class="card-text"><?= 'Statut : '.$order['statut'] ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+
+                            <?php else: ?>
+                                <p class="center-text">Vous n'avez pas de commandes de clients.</p>
+                            <?php endif ?>
+                        </div>
+                    </section>
+                    <?php endif ?>
                 </div>
 
 

@@ -111,6 +111,7 @@ CREATE TABLE Evaluation (
     id SERIAL,
     dateEvaluation DATE NOT NULL,
     note INTEGER NOT NULL,
+    commentaire VARCHAR(500),
     noCommande INTEGER NOT NULL UNIQUE,
     CONSTRAINT PK_Evaluation PRIMARY KEY (id),
     CONSTRAINT CHK_Evaluation_note CHECK ( note > 0 AND note < 6)
@@ -272,7 +273,7 @@ ON UPDATE CASCADE;
 DROP VIEW IF EXISTS Menu_Description CASCADE;
 CREATE VIEW Menu_Description
 AS
-SELECT P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes, 
+SELECT P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes,
 	array_agg(P_Plat.libellé ORDER BY Plat.catégorie) AS plats
 FROM Menu
 	INNER JOIN Produit AS P_Menu
@@ -734,15 +735,16 @@ VALUES (4, 1, 2),
 
 -- Evaluation
 
-INSERT INTO Evaluation(dateevaluation, note, nocommande)
-VALUES (timestamp '2021-11-04 05:21:14', 5, 1),
-       (timestamp '2019-04-24 11:48:10', 2, 3),
-       (timestamp '2016-06-01 16:20:46', 1, 5),
-       (timestamp '2022-01-05 10:30:02', 4, 7),
-       (timestamp '2012-12-12 00:01:32', 2, 8),
-       (timestamp '2017-08-21 23:56:42', 3, 10),
-       (timestamp '2002-08-11 13:13:06', 4, 13),
-       (timestamp '2022-01-08 21:55:35', 2, 15);
+INSERT INTO Evaluation(dateevaluation, note, commentaire, nocommande)
+VALUES (timestamp '2021-11-04 05:21:14', 5, 'Super traiteur, je recommande.', 1),
+       (timestamp '2019-04-24 11:48:10', 1, 'La pire expérience de ma vie. Le patron a refusé de reprendre mon plat car les frites étaient froides. J ai hésité à
+		appeler la police quand il a menacé de m étrangler avec des saucissons. Je déconseille !', 3),
+       (timestamp '2016-06-01 16:20:46', 3, 'Bon mais pas ouff', 5),
+       (timestamp '2022-01-05 10:30:02', 4, 'MIAM !', 7),
+       (timestamp '2012-12-12 00:01:32', 2, 'Bof... Trop cher pour ce que c est', 8),
+       (timestamp '2017-08-21 23:56:42', 3, 'Bien mais je connais un bon italien dans ma rue. Il s appelle Senza una donna non c è zucchero.', 10),
+       (timestamp '2002-08-11 13:13:06', 4, 'SUPER ! MEILLEUR RESTO DE MA VIE. Le serveur était charmant, je veux bien son 07.', 13),
+       (timestamp '2022-01-08 21:55:35', 2, 'De la nourriture pour chat...', 15);
 
 -- Insertion de Test pour les triggers
 

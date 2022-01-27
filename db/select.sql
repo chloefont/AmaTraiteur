@@ -122,18 +122,6 @@ INNER JOIN produit
         ON plat.idstyleculinaire = styleculinaire.id
 WHERE traiteur.idpersonne = 1;
 
--- sélection menus traiteur
-SELECT produit.id, produit.libellé, produit.prix, menu.nombrepersonnes
-FROM traiteur
-INNER JOIN produit
-        ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
-        ON produit.id = produit_commande.idproduit
-    INNER JOIN menu
-        ON produit.id = menu.idproduit
-WHERE traiteur.idpersonne = 1;
--- trier par type ?
-
 -- commandes d'un client
 SELECT commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement,
        SUM(produit) AS "Prix commande"
@@ -163,17 +151,7 @@ WHERE traiteur.idpersonne = 1
 GROUP BY commande.nocommande, commande.dateheure, commande.statut, commande.moyenpaiement
 ORDER BY commande.dateheure DESC;
 
-INSERT INTO personne(nom, prénom, adresse, notelephone, email)
-VALUES ('Gab', 'Vauthey', 'Grand rue', '0778996534', 'gab.vauthey@gmail.com');
-
-INSERT INTO traiteur VALUES (31, NULL, TRUE);
-
-INSERT INTO personne(nom, prénom, adresse, notelephone, email)
-VALUES ('Marie', 'Vauthey', 'Grand rue', '0778996535', 'marie.vauthey@gmail.com');
-
-INSERT INTO traiteur VALUES (32, NULL, TRUE);
-
 -- menus d'un traiteur
-SELECT idtraiteur, id, libellé, prix, nombrepersonnes, plats
-FROM Menu_Description
+SELECT idtraiteur, id, libellé, prix, nombrepersonnes, array_to_json(plats) AS plats
+        FROM Menu_Description
 WHERE idtraiteur = 1;

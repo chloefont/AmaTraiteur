@@ -3,6 +3,9 @@ require_once("back/db_connect.php");
 $idTraitor = $_GET["idTraitor"];
 $id = $_GET["id"];
 
+$traitorInfos = getPersoInfos($idTraitor);
+$note = getGradetraitor($idTraitor);
+
 $entrees = getTraitorCourses($idTraitor, 'Entrée');
 $plats = getTraitorCourses($idTraitor, 'Plat');
 $desserts = getTraitorCourses($idTraitor, 'Dessert');
@@ -50,10 +53,12 @@ if ($_SESSION["cart"] == null) {
                 <div class="col-xl-6">
                     <div class="text-center text-white">
                         <!-- Page heading-->
-                        <h1 class="mb-5">Jean Didier le traiteur</h1>
-                        <h2 class="mb-5">note/5</h2>
-                        <h4 class="mb-5">Adresse, numéro téléphone</h4>
-                        <h4 class="mb-5">Adresse mail</h4>
+                        <?php foreach($traitorInfos as $row): ?>
+                            <h1 class="mb-5"><?= $row['prénom']." ".$row['nom'] ?></h1>
+                            <h2 class="mb-5"><?= "Note : ".$note[0]['moyenne']."/5" ?></h2>
+                            <h4 class="mb-5"><?= $row['adresse'].", ".$row['notelephone'] ?></h4>
+                            <h4 class="mb-5"><?= $row['email'] ?></h4>
+                        <?php endforeach ?>
                         <<?= "a href='evaluations.php?id=" . $id . "&idTraitor=" . $idTraitor . "' class='btn btn-primary'>Evaluation</a>" ?> </div>
                     </div>
                 </div>
