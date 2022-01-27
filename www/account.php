@@ -59,6 +59,9 @@ $stylesCulinaire = getAllStyleCulinaire();
                             <h4 class="mb-5"><?= $row['adresse'].", ".$row['notelephone'] ?></h4>
                             <h4 class="mb-5"><?= $row['email'] ?></h4>
                             <?php endforeach; ?>
+                            <?php if(isTraitor($id)): ?>
+                                <?= "<a href='traiteur.php?id=" . $id . "&idTraitor=" . $id . "' class='btn btn-primary'>Voir ma page</a>" ?>
+                            <?php endif ?>
                         </div>
                     </div>
                 </div>
