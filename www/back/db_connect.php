@@ -6,12 +6,34 @@ $connection = new PDO("pgsql:host=db_server;port=5432;dbname=amaTraiteur", $_ENV
 // test
 $users = $connection->query('SELECT * FROM personne')->fetchAll(PDO::FETCH_ASSOC);
 
+// TODO réussir à mettre null après (quand trié)
 function getTenBestRankedTraitors() {
+    $sql = <<<'SQL'
+        SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, round(AVG(note), 2) AS moyenne
+        FROM traiteur
+            INNER JOIN personne
+                ON traiteur.idpersonne = personne.id
+            INNER JOIN cours
+                ON traiteur.idcours = cours.id
+            INNER JOIN produit
+                ON produit.idtraiteur = traiteur.idpersonne
+            LEFT JOIN produit_commande
+                ON produit.id = produit_commande.idproduit
+            LEFT JOIN commande
+                ON produit_commande.nocommande = commande.nocommande
+            LEFT JOIN evaluation
+                ON commande.nocommande = evaluation.nocommande
+        WHERE traiteur.statut = TRUE
+        GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone
+        ORDER BY moyenne DESC
+        LIMIT 10;
+    SQL;
+
     global $connection;
-    return $connection->query('
-        SELECT * FROM personne 
-            INNER JOIN traiteur 
-                ON personne.id = traiteur.idPersonne')->fetchAll(PDO::FETCH_ASSOC);
+    $sth = $connection->prepare($sql);
+
+    $sth->execute();
+    return $sth->fetchAll();
 }
 
 function getTraitorInfo($id) {
@@ -46,10 +68,8 @@ function getTraitorCourses($id, $category) {
 
 function getTraitoMenusInfos($id) {
     $sql = <<<'SQL'
-       SELECT *
+       SELECT DISTINCT Produit.id, Produit.libellé, Produit.prix, Menu.nombrepersonnes
         FROM Menu
-            INNER JOIN Menu_Plat
-                ON Menu.idproduit = Menu_Plat.idmenu
             INNER JOIN Produit
                 ON Menu.idproduit = Produit.id
         WHERE Produit.idtraiteur = :id;

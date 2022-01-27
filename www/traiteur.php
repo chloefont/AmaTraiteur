@@ -143,6 +143,7 @@
                                             <?php foreach($courses as $course): ?>
                                                 <p class="card-text"><?= $course['libellé'] ?></p>
                                             <?php endforeach ?>
+                                            <p class="card-text"><?= $menu['prix']."CHF, menu pour ".$menu['nombrepersonnes']."personnes" ?></p>
                                             <form method="post" action="<?= "addToCart.php?id=".$id."&idTraitor=".$idTraitor?>">
                                                 <input type="hidden" name="plat-id" value=<?= $menu['id'] ?>>
                                                 <input type="submit" class="btn btn-primary" value="Commander">

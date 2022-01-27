@@ -10,6 +10,24 @@ FROM Evaluation
 WHERE produit.idtraiteur = 1;
 
 -- sélection des 10 meilleurs traiteurs
+-- SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, round(AVG(note), 2) AS moyenne
+-- FROM traiteur
+--     INNER JOIN personne
+--         ON traiteur.idpersonne = personne.id
+--     INNER JOIN cours
+--         ON traiteur.idcours = cours.id
+--     INNER JOIN produit
+--         ON produit.idtraiteur = traiteur.idpersonne
+--     INNER JOIN produit_commande
+--         ON produit.id = produit_commande.idproduit
+--     INNER JOIN commande
+--         ON produit_commande.nocommande = commande.nocommande
+--     INNER JOIN evaluation
+--         ON commande.nocommande = evaluation.nocommande
+-- WHERE traiteur.statut = TRUE
+-- GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse
+-- ORDER BY moyenne DESC
+-- LIMIT 10;
 SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, round(AVG(note), 2) AS moyenne
 FROM traiteur
     INNER JOIN personne
@@ -18,11 +36,11 @@ FROM traiteur
         ON traiteur.idcours = cours.id
     INNER JOIN produit
         ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
+    LEFT JOIN produit_commande
         ON produit.id = produit_commande.idproduit
-    INNER JOIN commande
+    LEFT JOIN commande
         ON produit_commande.nocommande = commande.nocommande
-    INNER JOIN evaluation
+    LEFT JOIN evaluation
         ON commande.nocommande = evaluation.nocommande
 WHERE traiteur.statut = TRUE
 GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse
