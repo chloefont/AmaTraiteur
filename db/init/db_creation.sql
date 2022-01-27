@@ -1,5 +1,3 @@
-CREATE DATABASE zizi;
-
 ----------------------- Enum
 DROP TYPE IF EXISTS Plat_catégorie CASCADE;
 CREATE TYPE Plat_catégorie AS ENUM ('Entrée', 'Plat', 'Dessert');
@@ -269,6 +267,23 @@ ALTER TABLE Evaluation
             REFERENCES Commande(noCommande)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
+
+--- Vues
+DROP VIEW IF EXISTS Menu_Description CASCADE;
+CREATE VIEW Menu_Description
+AS
+SELECT P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes, 
+	array_agg(P_Plat.libellé ORDER BY Plat.catégorie) AS plats
+FROM Menu
+	INNER JOIN Produit AS P_Menu
+		ON P_Menu.id = Menu.idproduit
+	INNER JOIN Menu_Plat
+		ON Menu_Plat.idmenu = Menu.idproduit
+	INNER JOIN Plat
+		ON Menu_Plat.idplat = Plat.idproduit
+	INNER JOIN Produit AS P_Plat
+		ON P_Plat.id = Plat.idproduit
+GROUP BY P_Menu.idtraiteur, P_Menu.id, P_Menu.libellé, P_Menu.prix, Menu.nombrepersonnes;
 
 --- Peuplement de la base de données
 

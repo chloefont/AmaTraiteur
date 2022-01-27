@@ -10,7 +10,8 @@ FROM Evaluation
 WHERE produit.idtraiteur = 1;
 
 -- sélection des 10 meilleurs traiteurs
-SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, round(AVG(note), 2) AS moyenne
+SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, 
+	CASE WHEN AVG(note) IS NULL THEN 0 ELSE round(AVG(note), 2) END AS moyenne, COUNT(evaluation.id) AS nbEvaluations
 FROM traiteur
     INNER JOIN personne
         ON traiteur.idpersonne = personne.id
@@ -18,15 +19,15 @@ FROM traiteur
         ON traiteur.idcours = cours.id
     INNER JOIN produit
         ON produit.idtraiteur = traiteur.idpersonne
-    INNER JOIN produit_commande
+    LEFT JOIN produit_commande
         ON produit.id = produit_commande.idproduit
-    INNER JOIN commande
+    LEFT JOIN commande
         ON produit_commande.nocommande = commande.nocommande
-    INNER JOIN evaluation
+    LEFT JOIN evaluation
         ON commande.nocommande = evaluation.nocommande
 WHERE traiteur.statut = TRUE
 GROUP BY traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse
-ORDER BY moyenne DESC
+ORDER BY moyenne DESC, nbEvaluations DESC
 LIMIT 10;
 
 -- Sélection des traiteurs ayant les styles culinaires les plus commandés par le client
@@ -171,3 +172,8 @@ INSERT INTO personne(nom, prénom, adresse, notelephone, email)
 VALUES ('Marie', 'Vauthey', 'Grand rue', '0778996535', 'marie.vauthey@gmail.com');
 
 INSERT INTO traiteur VALUES (32, NULL, TRUE);
+
+-- menus d'un traiteur
+SELECT idtraiteur, id, libellé, prix, nombrepersonnes, plats
+FROM Menu_Description
+WHERE idtraiteur = 1;

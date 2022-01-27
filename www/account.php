@@ -1,15 +1,23 @@
 <?php
 require_once("back/db_connect.php");
+
 session_start();
 if(isset($_GET['id'])){
     $id = $_GET["id"];
     $persoInfos = getPersoInfos($id);
-    echo "<pre>".print_r($persoInfos)."</pre><br />";
 }else{
     echo 'not set !!!!!!!!!';
 }
 
-print_r($_SESSION["cart"]);
+if ($_SESSION["cart"] == null) {
+    $_SESSION["cart"]= array();
+}
+
+$entrees = getTraitorCourses($id, 'Entrée');
+$plats = getTraitorCourses($id, 'Plat');
+$desserts = getTraitorCourses($id, 'Dessert');
+
+$stylesCulinaire = getAllStyleCulinaire();
 
 ?>
 <!DOCTYPE html>
@@ -115,16 +123,134 @@ print_r($_SESSION["cart"]);
                         <!-- Traiteur -->
                         <?php else: ?>
 
-                            <h3 class="Ajouter un produit"></h3>
+                            <div class="row g-0">
+                            <h3 class="center-text">Ajouter un plat</h3>
+
+                            
+                                <!-- <div class="card traiteur-card" style="width: 80%;"> -->
+                                    <form method="post" action="<?= "addCourse.php?id=".$id ?>">
+                                        <div class="row g-2" style="padding-top: 0.5rem;">
+                                            <div class="col-md">
+                                                <div class="form-floating">
+                                                <input type="name" class="form-control" id="floatingInputGrid" name="libellé" maxlength="50" required>
+                                                <label for="floatingInputGrid">Libellé</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="floatingInputGrid" name="prix" min="0" required>
+                                                <label for="floatingInputGrid">Prix</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row g-2" style="padding-top: 0.5rem;">
+                                        <div class="col-md">
+                                                <div class="form-floating">
+                                                    <select class="form-select" id="floatingSelectGrid" name="catégorie" aria-label="Floating label select example">
+                                                        <option selected value="null">Aucun</option>
+                                                        <?php foreach($stylesCulinaire as $style): ?>
+                                                            <option value="<?= $style['id'] ?>"><?= $style['nom']." - ".$style['régionprovenance'] ?></option>
+                                                        <?php endforeach ?>
+                                                    </select>
+                                                    <label for="floatingSelectGrid">Catégorie</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md">
+                                                <div class="form-floating">
+                                                    <select class="form-select" id="floatingSelectGrid" name="catégorie" aria-label="Floating label select example">
+                                                        <option selected value="Entrée">Entrée</option>
+                                                        <option value="Plat">Plat</option>
+                                                        <option value="Dessert">Dessert</option>
+                                                    </select>
+                                                    <label for="floatingSelectGrid">Catégorie</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-floating" style="padding-top: 0.5rem;">
+                                            <textarea class="form-control" placeholder="" id="floatingTextarea2" name="description" maxlength="200" style="height: 100px"></textarea>
+                                            <label for="floatingTextarea2">Description</label>
+                                        </div>
+                                        <input type="submit" class="btn btn-primary" style="margin-top: 0.5rem;" value="Ajouter">
+                                    </form>
+                                <!-- </div> -->
+                            </div>
+
 
                             <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 80%;">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Traiteur 1</h5>
-                                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                                    </div>
-                                </div>
+                            <h3 class="center-text">Ajouter un menu</h3>
+
+                            
+                                <!-- <div class="card traiteur-card" style="width: 80%;"> -->
+                                    <form method="post" action="<?= "addMenu.php?id=".$id ?>">
+                                        <div class="row g-2" style="padding-top: 0.5rem;">
+                                            <div class="col-md">
+                                                <div class="form-floating">
+                                                <input type="name" class="form-control" id="floatingInputGrid" name="libellé" maxlength="50" required>
+                                                <label for="floatingInputGrid">Libellé</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="floatingInputGrid" min="0" name="prix" required>
+                                                <label for="floatingInputGrid">Prix</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row g-2" style="padding-top: 0.5rem;">
+                                            <div class="col-md">
+                                            <div class="form-floating">
+                                                    <select class="form-select" id="floatingSelectGrid" name="nombrepersonnes" aria-label="Floating label select example">
+                                                        <option selected value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="6">6</option>
+                                                        <option value="8">8</option>
+                                                        <option value="10">10</option>
+                                                    </select>
+                                                    <label for="floatingSelectGrid">Nombre de personnes</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div style="padding-top: 0.5rem;">
+
+                                            <div class="form-floating">
+                                                <select class="form-select" id="floatingSelect" name="entree" aria-label="Floating label select example" required>
+                                                    <?php foreach($entrees as $course): ?>
+                                                        <option value="<?= $course['id'] ?>"><?= $course['libellé'] ?></option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                                <label for="floatingSelect">Entrée</label>
+                                            </div>
+                                            
+                                        </div>
+                                        
+                                        <div style="padding-top: 0.5rem;">
+                                        <div class="form-floating">
+                                                <select class="form-select" id="floatingSelect" name="plat" aria-label="Floating label select example" required>
+                                                    <?php foreach($plats as $course): ?>
+                                                        <option value="<?= $course['id'] ?>"><?= $course['libellé'] ?></option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                                <label for="floatingSelect">Plat</label>
+                                            </div>
+                                        </div>
+
+                                        <div style="padding-top: 0.5rem;">
+                                        <div class="form-floating">
+                                                <select class="form-select" id="floatingSelect" name="dessert" aria-label="Floating label select example" required>
+                                                    <?php foreach($desserts as $course): ?>
+                                                        <option value="<?= $course['id'] ?>"><?= $course['libellé'] ?></option>
+                                                    <?php endforeach ?>
+                                                </select>
+                                                <label for="floatingSelect">Dessert</label>
+                                            </div>
+                                        </div>
+
+                                        <input type="submit" class="btn btn-primary" style="margin-top: 0.5rem;" value="Ajouter">
+                                    </form>
+                                <!-- </div> -->
                             </div>
                         
                         <?php endif ?>

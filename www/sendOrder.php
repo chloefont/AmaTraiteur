@@ -14,7 +14,6 @@ $sth->bindParam('adresse', getPersoInfos($_GET['id'])[0]['adresse'], PDO::PARAM_
 $sth->bindParam('id', $_GET['id'], PDO::PARAM_INT);
 $sth->execute();
 $idOrder = $sth->fetch()[0];
-// $last_id = $connection->insert_id;
 
 
 $arrayCounted = array_count_values($_SESSION["cart"]);
