@@ -183,7 +183,7 @@ function getTraitorEvaluations($id, $order) {
                 ON produit_commande.nocommande = commande.nocommande
             INNER JOIN evaluation
                 ON commande.nocommande = evaluation.nocommande
-        WHERE produit.idtraiteur = :id
+        WHERE produit.idtraiteur = :id;
     SQL;
 
     if ($order == 'note') {
