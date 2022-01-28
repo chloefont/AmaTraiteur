@@ -13,6 +13,7 @@
     $id = $_GET["id"];
     $traitors;
     $traitorsFaveStyle = getTenBestRankedTraitorsWithFavStyle($id);
+    print_r($traitorsFaveStyle);
     
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $traitors = traitorSearchWithWord($_POST['search']);
@@ -78,7 +79,7 @@
                         <h3 class="center-text">10 meilleurs traiteurs</h3>
                             <?php foreach($traitors as $row): ?>
                             <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 60rem;">
+                                <div class="card traiteur-card" >
                                     <div class="card-body">
                                         <h5 class="card-title"><?= $row['prénom']." ".$row['nom'] ?></h5>
                                         <p class="card-text"><?= $row['adresse'].", ".$row['notelephone'].", note : ".$row['moyenne']."/5" ?></p>
@@ -94,18 +95,28 @@
             <div class="col">
                 <section class="showcase traiteur-list">
                     <div class="container-fluid p-0">
-                    <h3 class="center-text">10 meilleurs traiteurs pour votre style</h3>
-                            <?php foreach($traitorsFaveStyle as $row): ?>
+                        <h3 class="center-text">10 meilleurs traiteurs pour votre style</h3>
+                        <?php if (count($traitorsFaveStyle) == 0): ?>
                             <div class="row g-0">
-                                <div class="card traiteur-card" style="width: 60rem;">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><?= $row['prénom']." ".$row['nom'] ?></h5>
-                                        <p class="card-text"><?= $row['adresse'].", ".$row['notelephone'].", note : ".$row['moyenne']."/5" ?></p>
-                                        <?= "<a href='traiteur.php?id=".$id."&idTraitor=".$row['idpersonne']."' class='btn btn-primary'>Voir la page</a>";?>
+                            <p style="text-align: center;">
+                                Vous n'avez pas encore passé de commande. De ce fait nous ne pouvons pas vous proposer de traiteurs proposant des plat de votre style préféré.
+                            </p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach($traitorsFaveStyle as $row): ?>
+                                    
+                                <div class="row g-0">
+                                    <div class="card traiteur-card" style="width: 60rem;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= $row['prénom']." ".$row['nom'] ?></h5>
+                                            <p class="card-text"><?= $row['adresse'].", ".$row['notelephone'].", note : ".$row['moyenne']."/5" ?></p>
+                                            <?= "<a href='traiteur.php?id=".$id."&idTraitor=".$row['idpersonne']."' class='btn btn-primary'>Voir la page</a>";?>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                                
                             <?php endforeach; ?>
+                        <?php endif ?>
                     </div>
                 </section>
             </div>

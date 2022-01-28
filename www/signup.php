@@ -9,7 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>AmaTraiteur - Home</title>
+        <title>AmaTraiteur - Signup</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Bootstrap icons-->
@@ -32,7 +32,7 @@
         </header>
 
         <div class="row g-0 center-item" style="padding-top: 50px; width: 50rem;">
-            <h3 class="center-text">Connexion</h3>
+            <h3 class="center-text">Inscription</h3>
 
             
                 <!-- <div class="card traiteur-card" style="width: 80%;"> -->
