@@ -2,7 +2,10 @@ version: "3.9"
 
 services:
     db_server:
-        image: postgres
+        build: 
+            context: .
+            dockerfile: Dockerfile_pg
+        image: postgres:latest
         restart: always
         ports:
             - "5432:5432"
@@ -10,8 +13,6 @@ services:
             POSTGRES_PASSWORD: pro
             POSTGRES_USER: postgres
             POSTGRES_DB: amaTraiteur
-        volumes:
-          - ./db/init/:/docker-entrypoint-initdb.d
     php_server:
         build:
             context: .
@@ -19,6 +20,8 @@ services:
         image: php_server:latest
         ports:
             - "8080:80"
+        volumes:
+            - ./www/:/var/www/html/
         environment:
             - DB_USER=postgres
             - DB_PASSWORD=pro

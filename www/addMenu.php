@@ -3,6 +3,7 @@ require_once("back/db_connect.php");
 session_start();
 
 if (!isset($_GET['id'])) {
+    echo "no id";
     header("Location: index.php", true, 301);
 }
 
@@ -72,6 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isTraitor($_GET['id'])) {
         $connection->commit();
 
     }  catch (PDOException  $e) {
+        echo $e;
         $connection->rollBack();
     } finally {
         header("Location: account.php?id=".$_GET['id'], true, 301);

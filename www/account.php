@@ -235,7 +235,7 @@ $stylesCulinaire = getAllStyleCulinaire();
                                             <div class="form-floating">
                                                 <select class="form-select" id="floatingSelect" name="entree" aria-label="Floating label select example" required>
                                                     <?php foreach($entrees as $course): ?>
-                                                        <option value="<?= $course['id'] ?>"><?= $course['libellé'] ?></option>
+                                                        <option value="<?= $course['idproduit'] ?>"><?= $course['libellé'] ?></option>
                                                     <?php endforeach ?>
                                                 </select>
                                                 <label for="floatingSelect">Entrée</label>
@@ -247,7 +247,7 @@ $stylesCulinaire = getAllStyleCulinaire();
                                         <div class="form-floating">
                                                 <select class="form-select" id="floatingSelect" name="plat" aria-label="Floating label select example" required>
                                                     <?php foreach($plats as $course): ?>
-                                                        <option value="<?= $course['id'] ?>"><?= $course['libellé'] ?></option>
+                                                        <option value="<?= $course['idproduit'] ?>"><?= $course['libellé'] ?></option>
                                                     <?php endforeach ?>
                                                 </select>
                                                 <label for="floatingSelect">Plat</label>
@@ -258,7 +258,7 @@ $stylesCulinaire = getAllStyleCulinaire();
                                         <div class="form-floating">
                                                 <select class="form-select" id="floatingSelect" name="dessert" aria-label="Floating label select example" required>
                                                     <?php foreach($desserts as $course): ?>
-                                                        <option value="<?= $course['id'] ?>"><?= $course['libellé'] ?></option>
+                                                        <option value="<?= $course['idproduit'] ?>"><?= $course['libellé'] ?></option>
                                                     <?php endforeach ?>
                                                 </select>
                                                 <label for="floatingSelect">Dessert</label>

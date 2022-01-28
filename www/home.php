@@ -13,7 +13,6 @@
     $id = $_GET["id"];
     $traitors;
     $traitorsFaveStyle = getTenBestRankedTraitorsWithFavStyle($id);
-    print_r($traitorsFaveStyle);
     
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $traitors = traitorSearchWithWord($_POST['search']);
