@@ -6,8 +6,8 @@
         header("Location: index.php", true, 301);
     }
 
-    if ($_SESSION["cart"] == null) {
-        $_SESSION["cart"]= array();
+    if (!isset($_SESSION["cart"])) {
+        $_SESSION["cart"] = array();
     }
 
     $id = $_GET["id"];
