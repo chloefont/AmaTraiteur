@@ -1,12 +1,6 @@
 <?php
 $connection = new PDO("pgsql:host=db_server;port=5432;dbname=amaTraiteur", $_ENV["DB_USER"], $_ENV["DB_PASSWORD"]);
 
-// $cart = array();
-
-// test
-$users = $connection->query('SELECT * FROM personne')->fetchAll(PDO::FETCH_ASSOC);
-
-// TODO réussir à mettre null après (quand trié)
 function getTenBestRankedTraitors() {
     $sql = <<<'SQL'
         SELECT traiteur.idpersonne, personne.nom, personne.prénom, personne.adresse, personne.notelephone, personne.email,
@@ -124,12 +118,19 @@ function traitorSearchWithWord($word) {
 }
 
 function getTraitorInfo($id) {
+    $sql = <<<'SQL'
+        SELECT * FROM traiteur
+            INNER JOIN personne 
+                ON personne.id = traiteur.idpersonne
+        WHERE personne.id = :id;
+    SQL;
+
     global $connection;
-    return $connection->query('
-    SELECT * FROM traiteur
-        INNER JOIN personne 
-        ON personne.id = traiteur.idpersonne
-    WHERE personne.id ='.$id.';')->fetchAll(PDO::FETCH_ASSOC);
+    $sth = $connection->prepare($sql);
+    $sth->bindParam('id', $id, PDO::PARAM_INT);
+
+    $sth->execute();
+    return $sth->fetchAll();
 }
 
 function getTraitorCourses($id, $category) {
@@ -252,16 +253,19 @@ function getProduct($id) {
 }
 
 function isTraitor($id) {
+    $sql = <<<'SQL'
+        SELECT * FROM traiteur
+            INNER JOIN personne 
+                ON personne.id = traiteur.idpersonne
+        WHERE personne.id = :id;
+    SQL;
+
     global $connection;
-    if ($connection->query('
-    SELECT * FROM traiteur
-        INNER JOIN personne 
-        ON personne.id = traiteur.idpersonne
-    WHERE personne.id ='.$id.';')->rowCount() == 0) {
-        return false;
-    } else {
-        return true;
-    }
+    $sth = $connection->prepare($sql);
+    $sth->bindParam('id', $id, PDO::PARAM_INT);
+
+    $sth->execute();
+    return count($sth->fetchAll()) == 1;
 }
 
 function isMenu($id) {
