@@ -330,7 +330,7 @@ CREATE TRIGGER check_traiteur
 
 -- Trigger vérifiant l'héritage disjoint de Produit
 
--- Check lors d'insertion dans Plat
+-- Check lors d'insertion dans la table Plat
 
 CREATE OR REPLACE FUNCTION function_check_plat()
     RETURNS TRIGGER AS $$
@@ -350,7 +350,7 @@ CREATE TRIGGER check_plat
     FOR EACH ROW
 EXECUTE FUNCTION function_check_plat();
 
--- Check lors d'insertion dans menu
+-- Check lors d'insertion dans la table menu
 
 CREATE OR REPLACE FUNCTION function_check_menu()
     RETURNS TRIGGER AS $$
@@ -438,7 +438,7 @@ EXECUTE FUNCTION function_check_multi_commande();
 
 --- Personne
 INSERT INTO Personne (nom, prénom, adresse, noTelephone, email)
-VALUES('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNeym@gmail.com'),
+    VALUES('Neymar', 'Jean', 'Route de la Boustifaille 12', '012 412 1832', 'JeanNeym@gmail.com'),
       ('Debonlyvre', 'Julie', 'Route de Jésuy-Père-Du 31', '031 532 2135', 'LaJulie@hotmail.com'),
       ('Peausy-Scion', 'Paul', 'Chemin du Preaujay-Bédéhère 7', '021 423 1245', 'jaimelesvoiture@bluewin.ch'),
       ('Aideufoi', 'Marie', 'Avenue des Cordet 92', '021 422 2314', 'asdfmail@mail.com'),
@@ -710,7 +710,6 @@ VALUES(8, 5),
 
       (23, 19),
       (23, 20),
-      (23, 21),
       (23, 22),
 
        (37, 34),
@@ -718,7 +717,6 @@ VALUES(8, 5),
        (37, 36),
 
        (57, 53),
-       (57, 54),
        (57, 55),
        (57, 56);
 
@@ -790,22 +788,25 @@ VALUES (timestamp '2021-11-04 05:21:14', 5, 'Super traiteur, je recommande.', 1)
 
 -- Insertion de Test pour les triggers
 
+-- Tests Commande d'un traiteur à lui-même
+
+-- INSERT INTO commande (dateheure, adresselivraison, statut, datepaiement, moyenpaiement, idpersonne)
+-- VALUES (NOW(), 'rue sympa', 'Non validé', NOW(), 'carte bancaire', 12);
+-- INSERT INTO produit_commande (idproduit, nocommande, quantité)
+-- VALUES(7, 16 , 1);
+
 -- Test heritage disjoint sur Produit
---INSERT INTO Menu VALUES(1, 3);
-INSERT INTO Plat VALUES(8, 'coucou', 'Entrée'::Plat_catégorie, 1);
+-- INSERT INTO Menu VALUES(1, 3);
+-- INSERT INTO Plat VALUES(8, 'testInsert', 'Entrée'::Plat_catégorie, 1);
 
 -- Tests Commande de produits venant de différents traiteurs
 
-INSERT INTO Produit_Commande VALUES (3, 1, 1); -- Devrait marcher
-INSERT INTO Produit_Commande VALUES (20, 5, 2); -- Devrait marcher
-INSERT INTO Produit_Commande VALUES (32, 13, 1); -- Devrait lever une exception
-INSERT INTO Produit_Commande VALUES (16, 1, 1); -- Devrait lever une exception
+-- INSERT INTO Produit_Commande VALUES (3, 1, 1); -- Devrait marcher
+-- INSERT INTO Produit_Commande VALUES (20, 5, 2); -- Devrait marcher
+-- INSERT INTO Produit_Commande VALUES (32, 13, 1); -- Devrait lever une exception
+-- INSERT INTO Produit_Commande VALUES (16, 1, 1); -- Devrait lever une exception
 
--- Tests Commande d'un traiteur à lui-même
 
-INSERT INTO Commande(dateHeure, adresseLivraison, statut, datePaiement, moyenPaiement, idPersonne) VALUES(timestamp '2021-11-01 19:27:02', 'Route de la Patience 404', 'En cours de livraison'::Commande_statut, -- Commande du traiteur 1 (idPersonne = 11) à lui-même
-                            timestamp '2021-11-01 19:27:05', 'twint'::Commande_moyenPaiement, 11);
-INSERT INTO Produit_Commande VALUES(1, 16, 1);
 
 -- Test composition de menu avec des plats d'un autre traiteur
 
