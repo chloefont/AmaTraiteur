@@ -10,6 +10,8 @@ services:
             POSTGRES_PASSWORD: pro
             POSTGRES_USER: postgres
             POSTGRES_DB: amaTraiteur
+        volumes:
+          - ./db/init/:/docker-entrypoint-initdb.d
     php_server:
         build:
             context: .
