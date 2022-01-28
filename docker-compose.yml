@@ -2,10 +2,7 @@ version: "3.9"
 
 services:
     db_server:
-        build: 
-            context: .
-            dockerfile: Dockerfile_pg
-        image: postgres:latest
+        image: postgres
         restart: always
         ports:
             - "5432:5432"
